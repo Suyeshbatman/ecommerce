@@ -75,7 +75,6 @@ class LoginController extends Controller
 		if (!empty($user)) {          
 			if (!Hash::check($request->password, $user->password)) {
                 return redirect()->route('redirect');
-
 			}
             else {
                 $request->session()->put('user_name', $user->name);
@@ -83,30 +82,37 @@ class LoginController extends Controller
                 $userrole = UserRoles::where('userid',$user->id)->first();
     
                 if(!empty($userrole)){
+
                     $role = Roles::where('id',$userrole->roleid)->first();
-                }
-                $request->session()->put('user_role', $role->rolename);
+                
+                    $request->session()->put('user_role', $role->rolename);
     
-                if ($role->rolename === 'Superadmin') {
-    
-                    $userdata = User::all();
-                    $data = Roles::all();
-                    // return view('dashboard.admindashboard',['userdata'=>$userdata,'data'=>$data]);
-                    return view('dashboard.admindashboard');
-    
-                } elseif ($role->rolename === 'Admin') {
-                    // return view('dashboard.clientdashboard',['userdata'=>$userdata,'data'=>$data]);
-                    return view('dashboard.clientdashboard');
-    
+                    if ($role->rolename === 'Superadmin') {
+        
+                        $userdata = User::all();
+                        $data = Roles::all();
+
+                        // return view('dashboard.admindashboard',['userdata'=>$userdata,'data'=>$data]);
+                        return view('dashboard.admindashboard');
+        
+                    } elseif ($role->rolename === 'Admin') {
+                        // return view('dashboard.clientdashboard',['userdata'=>$userdata,'data'=>$data]);
+                        return view('dashboard.clientdashboard');                                   
+		            }  
                 } else {
-                    return route('home');
-                }      
-		    }  
-		}
-        else {
-            
-            return redirect()->route('redirect');
+                    $request->session()->put('user_name', $user->name);
+                    $request->session()->put('user_id', $user->id);
+
+                    return redirect(route('home'));
+                } 
+		    }
         }
+        else {
+            $request->session()->put('user_name', $user->name);
+            $request->session()->put('user_id', $user->id);
+
+            return redirect(route('home'));
+        } 
         
     }
 
