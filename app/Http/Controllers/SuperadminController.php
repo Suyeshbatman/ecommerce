@@ -44,6 +44,7 @@ class SuperadminController extends Controller
     public function superuser(Request $request)
     {
         $request = request();
+        $tabid = $request->tabid;
         // print($request);
         // exit;
         $value = Session::get('user_id');
@@ -121,7 +122,9 @@ class SuperadminController extends Controller
 
         $usdata = User::all();
 
-        return view('dashboard.admindashboard',['usdata'=>$udata,'tabid'=>$tabid]);
+        return response()->json(['usdata' => $usdata, 'tabid' => $tabid]);
+
+        //return view('dashboard.admindashboard',['usdata'=>$udata,'tabid'=>$tabid]);
         //return view('dashboard.admindashboard');          
         
     }
@@ -147,7 +150,9 @@ class SuperadminController extends Controller
 
         $usedata = User::all();
 
-        return view('dashboard.admindashboard',['usedata'=>$usedata,'tabid'=>$tabid]);
+        return response()->json(['usedata' => $usedata, 'tabid' => $tabid]);
+
+        //return view('dashboard.admindashboard',['usedata'=>$usedata,'tabid'=>$tabid]);
         //return view('dashboard.admindashboard');                  
         
     }
