@@ -39,15 +39,15 @@ class LoginController extends Controller
     
                     $userdata = User::all();
                     $data = Roles::all();
-                    // return view('dashboard.admindashboard',['userdata'=>$userdata,'data'=>$data]);
-                    return view('dashboard.admindashboard');
+                    return view('dashboard.admindashboard',['userdata'=>$userdata,'data'=>$data]);
+                    //return view('dashboard.admindashboard');
     
                 } elseif ($role->rolename === 'Admin') {
-                    // return view('dashboard.clientdashboard',['userdata'=>$userdata,'data'=>$data]);
-                    return view('dashboard.clientdashboard');
+                    return view('dashboard.clientdashboard',['userdata'=>$userdata,'data'=>$data]);
+                    //return view('dashboard.clientdashboard');
     
                 } else {
-                    return route('home');
+                    return redirect(route('home'));
                 }      
 		}
         else {           
@@ -92,7 +92,7 @@ class LoginController extends Controller
                         $userdata = User::all();
                         $data = Roles::all();
 
-                        // return view('dashboard.admindashboard',['userdata'=>$userdata,'data'=>$data]);
+                        return view('dashboard.admindashboard',['userdata'=>$userdata,'data'=>$data]);
                         return view('dashboard.admindashboard');
         
                     } elseif ($role->rolename === 'Admin') {
@@ -125,7 +125,7 @@ class LoginController extends Controller
 
             $request->session()->put('user_name', $user->name);
             $request->session()->put('user_id', $user->id);
-                $userrole = UserRoles::where('userid',$user->id)->first();
+            $userrole = UserRoles::where('userid',$user->id)->first();
     
                 if(!empty($userrole)){
                     $role = Roles::where('id',$userrole->roleid)->first();
@@ -135,16 +135,16 @@ class LoginController extends Controller
                 if ($role->rolename === 'Superadmin') {
     
                     $userdata = User::all();
-                    $data = Roles::all();
-                    // return view('dashboard.admindashboard',['userdata'=>$userdata,'data'=>$data]);
-                    return view('dashboard.admindashboard');
+                    $data = UserRoles::where('userid',$userdata->id);
+                    return view('dashboard.admindashboard',['userdata'=>$userdata,'data'=>$data]);
+                    //return view('dashboard.admindashboard');
     
                 } elseif ($role->rolename === 'Admin') {
-                    // return view('dashboard.clientdashboard',['userdata'=>$userdata,'data'=>$data]);
-                    return view('dashboard.clientdashboard');
+                    return view('dashboard.clientdashboard',['userdata'=>$userdata,'data'=>$data]);
+                    //return view('dashboard.clientdashboard');
     
                 } else {
-                    return route('home');
+                    return redirect(route('home'));
                 }      
 		}
         else {
