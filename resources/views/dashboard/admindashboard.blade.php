@@ -57,6 +57,7 @@
   </div>
 
   <div class="tab-pane" id="services">
+    @if(isset($udata) && !empty($udata))
     <table class="table table-bordered">
         <thead>
           <tr>
@@ -65,25 +66,53 @@
           </tr>
         </thead>
         <tbody class="tbody">
-        @isset($udata)
-        @php
-    $udataA = json_decode($udata);
-@endphp
-          @foreach ($udataA as $value)
-          {{$value}}
-          <tr>
-            <th scope="row">1</th>
-            <td>{{$value->name}}</td>
-          </tr>
-          @endforeach
-        @endisset
+            @php
+                $udataA = json_decode($udata);
+            @endphp
+            @foreach ($udataA as $value)
+            <tr>
+                <th scope="row">1</th>
+                <td>{{$value->name}}</td>
+            </tr>
+            @endforeach
         </tbody>
     </table>
-  </div>
+    @endif
+</div>
 
-  <div class="tab-pane" id="addservices">
-    ghasfghfasghdfasgjhd
-  </div>
+
+<div class="tab-pane" id="addservices">
+  <h2>Add New Service</h2>
+  <form id="add-service-form">
+    <div class="mb-3">
+      <label for="serviceName" class="form-label">Service Name</label>
+      <input type="text" class="form-control" id="serviceName" name="serviceName" required>
+    </div>
+
+    <!-- New Categories Dropdown -->
+    <div class="mb-3">
+      <label for="serviceCategory" class="form-label">Category</label>
+      <select class="form-select" id="serviceCategory" name="serviceCategory" required>
+        <option selected disabled value="">Choose a category</option>
+        <!-- Options will be populated here dynamically -->
+      </select>
+    </div>
+
+    <div class="mb-3">
+      <label for="serviceDescription" class="form-label">Description</label>
+      <textarea class="form-control" id="serviceDescription" name="serviceDescription" rows="3" required></textarea>
+    </div>
+
+    <!-- Difficulty Input -->
+    <div class="mb-3">
+      <label for="serviceDifficulty" class="form-label">Difficulty</label>
+      <input type="number" class="form-control" id="serviceDifficulty" name="serviceDifficulty" min="1" step="1" required>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Submit</button>
+  </form>
+</div>
+
 
   <div class="tab-pane" id="revenue">
     ghasfghfasdjkgsbdfjkgsdjkfsdjkfsghdfasgjhd
@@ -93,45 +122,45 @@
 
 <script>
 $(document).ready(function() {
-    var token ="{{csrf_token()}}";
-    // Add click event listeners to each tab link
     $('.nav-link').click(function(event) {
-        event.preventDefault(); // Prevent the default behavior of the link
-        
-        // Get the target tab id
-        var tabid = $(this).attr('data-target').substring(1); // Remove '#' from target id
-        // Get the URL from the href attribute of the clicked link
-        var url = ('/dashboard');
-        var infoData= {tabid:tabid,_token:token};
-        var clickedTabLink = $(this);
+        event.preventDefault(); // Prevent default link behavior
+        var tabid = $(this).attr('data-target').substring(1); // Extract tab ID
+        var url = '/dashboard'; // Adjust if your endpoint URL is different
+        var infoData = { tabid: tabid, _token: "{{csrf_token()}}" };
+        var clickedTabLink = $(this); // Ensure you capture this for later use
 
-        //Simulate fetching content for the tab
         $.post(url, infoData, function(response) {
-          if (response) { // Check if 'udata' exists in the response
-              var tabid = response.tabid;
-              var udata = response.udata; // Check if response is not empty or null
-             
-                // Remove active class from all tab panes
+            if (response) {
+                if (response.tabid == 'addservices' && response.categories) {
+                    // Handle the 'addservices' tab response
+                    var dropdown = $('#serviceCategory'); // Make sure this is your dropdown ID
+                    dropdown.empty(); // Clear existing options
+                    dropdown.append('<option selected disabled value="">Choose a category</option>');
+                    $.each(response.categories, function(index, category) {
+                        dropdown.append($('<option>', {
+                            value: category,
+                            text: category
+                        }));
+                    });
+                } else {
+                    // General handling for other tabs
+                    // Assuming 'udata' is part of the response for other tabs
+                    // Update tab content if necessary
+                }
+                
+                // Update UI elements based on response
                 $('.tab-pane').removeClass('active');
-                  //console.log(udata);
-                // Set the fetched data into the target tab content
-                $('#' + tabid).html(udata);
-                // Add active class to the target tab content
-                $('#' + tabid).addClass('active');
-                // Remove active class from all tab links
+                $('#' + response.tabid).addClass('active');
                 $('.nav-link').removeClass('active');
-                // Add active class to clicked tab link
                 clickedTabLink.addClass('active');
-                // clickedTabLink.addClass('active');
-                // $(this).addClass('active');
             } else {
-                // Handle the case when response is empty or null
-                // For example, display a message or do nothing
                 console.error('Empty response received.');
             }
         });
     });
 });
 </script>
+
+
 
 @endsection

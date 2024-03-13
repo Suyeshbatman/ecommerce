@@ -35,6 +35,7 @@ Route::post('/register', 'LoginController@registeruser')->name('register.post');
 //Superadmin routes
 Route::post('/dashboard', 'SuperadminController@index')->name('superadmin.index');
 
+
 // Route::post('/usersdashboard', 'SuperadminController@superuser')->name('superadmin.users');
 // Route::post('/servicesdashboard', 'SuperadminController@superservices')->name('superadmin.services');
 // Route::post('/addservicesdashboard', 'SuperadminController@addservices')->name('superadmin.addservices');

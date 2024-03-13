@@ -9,6 +9,8 @@ use Illuminate\Support\Facades;
 use App\Models\User;
 use App\Models\UserRoles;
 use App\Models\Roles;
+use App\Models\Categories;
+use App\Models\Services;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Hash;
@@ -103,31 +105,30 @@ class SuperadminController extends Controller
 
     public function addservices(Request $request)
     {
-        $request = request();
-        // print($request);
-        // exit;
         $tabid = $request->tabid; 
         $value = Session::get('user_id');
-        // print($value);
-        // exit;
         $user = User::where('id', $value)->first();
-
+    
+        // Preserving session setup
         $request->session()->put('user_name', $user->name);
         $request->session()->put('user_id', $user->id);
-        //$tab = $request->input('tab', 'addservices');
         $userrole = UserRoles::where('userid',$user->id)->first();
-
         $role = Roles::where('id',$userrole->roleid)->first();
         $request->session()->put('user_role', $role->rolename);
-
-        $usdata = User::all();
-
-        return response()->json(['usdata' => $usdata, 'tabid' => $tabid]);
-
-        //return view('dashboard.admindashboard',['usdata'=>$udata,'tabid'=>$tabid]);
-        //return view('dashboard.admindashboard');          
-        
+    
+        // Check if the requested tab is 'addservices'
+        if ($tabid == 'addservices') {
+            // Fetch categories and return only the names
+            $categories = Categories::all()->pluck('category_name');
+            return response()->json(['categories' => $categories, 'tabid' => $tabid]);
+        } else {
+            // Original functionality for other tabs
+            $usdata = User::all();
+            $categories = Categories::all(); // This line may not be necessary if not used in other tabs
+            return response()->json(['usdata' => $usdata, 'tabid' => $tabid, 'categories' => $categories]);
+        }
     }
+    
 
     public function revenue(Request $request)
     {
