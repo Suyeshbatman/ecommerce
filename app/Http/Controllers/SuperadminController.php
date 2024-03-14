@@ -119,7 +119,7 @@ class SuperadminController extends Controller
         // Check if the requested tab is 'addservices'
         if ($tabid == 'addservices') {
             // Fetch categories and return only the names
-            $categories = Categories::all()->pluck('category_name');
+            $categories = Categories::all();
             return response()->json(['categories' => $categories, 'tabid' => $tabid]);
         } else {
             // Original functionality for other tabs
@@ -156,5 +156,43 @@ class SuperadminController extends Controller
         //return view('dashboard.admindashboard',['usedata'=>$usedata,'tabid'=>$tabid]);
         //return view('dashboard.admindashboard');                  
         
+    }
+
+    public function registerservices(Request $request)
+    {
+        // print($request);
+        // exit;
+        $request->validate([
+            'category_id' => 'required',
+            'service_name'    => 'required',
+            'description'    => 'required',
+            'difficulty' => 'required', 
+        ]);
+
+        $data = $request->all();
+        Services::create([
+            'category_id' => $data['category_id'],
+            'service_name' => $data['service_name'],
+            'description' => $data['description'],
+            'difficulty' => $data['difficulty'],
+        ]);      
+
+        $value = Session::get('user_id');
+        $tabid = $request->addservices;
+        // print($value);
+        // exit;
+        $user = User::where('id', $value)->first();
+
+        $request->session()->put('user_name', $user->name);
+        $request->session()->put('user_id', $user->id);
+        $tab = $request->input('tab', 'users');
+        $userrole = UserRoles::where('userid',$user->id)->first();
+
+        $role = Roles::where('id',$userrole->roleid)->first();
+        $request->session()->put('user_role', $role->rolename);
+
+        $userdata = User::all();
+        
+        return view('dashboard.admindashboard',['userdata'=>$userdata,'tabid'=>$tabid]);
     }
 }

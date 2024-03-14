@@ -57,7 +57,6 @@
   </div>
 
   <div class="tab-pane" id="services">
-    @if(isset($udata) && !empty($udata))
     <table class="table table-bordered">
         <thead>
           <tr>
@@ -66,51 +65,55 @@
           </tr>
         </thead>
         <tbody class="tbody">
-            @php
-                $udataA = json_decode($udata);
-            @endphp
-            @foreach ($udataA as $value)
-            <tr>
-                <th scope="row">1</th>
-                <td>{{$value->name}}</td>
-            </tr>
-            @endforeach
+        @isset($udata)
+        @php
+    $udataA = json_decode($udata);
+@endphp
+          @foreach ($udataA as $value)
+          {{$value}}
+          <tr>
+            <th scope="row">1</th>
+            <td>{{$value->name}}</td>
+          </tr>
+          @endforeach
+        @endisset
         </tbody>
     </table>
-    @endif
-</div>
-
+  </div>
 
 <div class="tab-pane" id="addservices">
   <h2>Add New Service</h2>
-  <form id="add-service-form">
-    <div class="mb-3">
-      <label for="serviceName" class="form-label">Service Name</label>
-      <input type="text" class="form-control" id="serviceName" name="serviceName" required>
-    </div>
+  {!!Form::open(['method'=>'POST','url'=>'/createservices','class'=>'form-inline'])!!}
+  @csrf
+     <!-- New Categories Dropdown -->
+     <input type="hidden" class="form-control" id="addservices" name="addservices">
 
-    <!-- New Categories Dropdown -->
-    <div class="mb-3">
-      <label for="serviceCategory" class="form-label">Category</label>
-      <select class="form-select" id="serviceCategory" name="serviceCategory" required>
+  <div class="mb-3">
+      <label for="category_id" class="form-label">Category</label>
+      <select class="form-select" id="category_id" name="category_id" required>
         <option selected disabled value="">Choose a category</option>
         <!-- Options will be populated here dynamically -->
       </select>
     </div>
 
     <div class="mb-3">
-      <label for="serviceDescription" class="form-label">Description</label>
-      <textarea class="form-control" id="serviceDescription" name="serviceDescription" rows="3" required></textarea>
+      <label for="service_name" class="form-label">Service Name</label>
+      <input type="text" class="form-control" id="service_name" name="service_name" required>
+    </div>
+
+    <div class="mb-3">
+      <label for="description" class="form-label">Description</label>
+      <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
     </div>
 
     <!-- Difficulty Input -->
     <div class="mb-3">
-      <label for="serviceDifficulty" class="form-label">Difficulty</label>
-      <input type="number" class="form-control" id="serviceDifficulty" name="serviceDifficulty" min="1" step="1" required>
+      <label for="difficulty" class="form-label">Difficulty</label>
+      <input type="number" class="form-control" id="difficulty" name="difficulty" min="1" step="1" required>
     </div>
 
     <button type="submit" class="btn btn-primary">Submit</button>
-  </form>
+    {!!Form::close() !!}
 </div>
 
 
@@ -121,44 +124,94 @@
 
 
 <script>
-$(document).ready(function() {
+  $(document).ready(function() {
     $('.nav-link').click(function(event) {
         event.preventDefault(); // Prevent default link behavior
         var tabid = $(this).attr('data-target').substring(1); // Extract tab ID
         var url = '/dashboard'; // Adjust if your endpoint URL is different
         var infoData = { tabid: tabid, _token: "{{csrf_token()}}" };
-        var clickedTabLink = $(this); // Ensure you capture this for later use
+        var clickedTabLink = $(this);
 
         $.post(url, infoData, function(response) {
-            if (response) {
-                if (response.tabid == 'addservices' && response.categories) {
-                    // Handle the 'addservices' tab response
-                    var dropdown = $('#serviceCategory'); // Make sure this is your dropdown ID
+            if (response.tabid == 'services' && response.udata) {
+                // Clear existing content in the table, except for the header
+                $('#services .table .tbody').empty();
+                
+                // Dynamically add each user to the table
+                $.each(response.udata, function(index, udata) {
+                    var row = `<tr>
+                                <th scope="row">${index + 1}</th>
+                                <td>${udata.name}</td>
+                               </tr>`;
+                    $('#services .table .tbody').append(row);
+                });
+            } else if (response.tabid == 'addservices' && response.categories) {
+                // Handle the 'addservices' tab response
+                var dropdown = $('#category_id'); // Make sure this is your dropdown ID
                     dropdown.empty(); // Clear existing options
                     dropdown.append('<option selected disabled value="">Choose a category</option>');
                     $.each(response.categories, function(index, category) {
+                      //console.log(category);
                         dropdown.append($('<option>', {
-                            value: category,
-                            text: category
-                        }));
+                            value: category.id,
+                            text: category.category_name
+                          }));
                     });
                 } else {
                     // General handling for other tabs
                     // Assuming 'udata' is part of the response for other tabs
                     // Update tab content if necessary
-                }
-                
-                // Update UI elements based on response
-                $('.tab-pane').removeClass('active');
-                $('#' + response.tabid).addClass('active');
-                $('.nav-link').removeClass('active');
-                clickedTabLink.addClass('active');
-            } else {
-                console.error('Empty response received.');
-            }
+                } // Include additional else if blocks for other tabs as necessary
+            
+            // Update UI elements based on response
+            $('.tab-pane').removeClass('active');
+            $('#' + response.tabid).addClass('active');
+            $('.nav-link').removeClass('active');
+            clickedTabLink.addClass('active');
+        }).fail(function(xhr) {
+            console.error('Error fetching data: ', xhr.responseText);
         });
     });
 });
+
+// $(document).ready(function() {
+//     $('.nav-link').click(function(event) {
+//         event.preventDefault(); // Prevent default link behavior
+//         var tabid = $(this).attr('data-target').substring(1); // Extract tab ID
+//         var url = '/dashboard'; // Adjust if your endpoint URL is different
+//         var infoData = { tabid: tabid, _token: "{{csrf_token()}}" };
+//         var clickedTabLink = $(this); // Ensure you capture this for later use
+
+//         $.post(url, infoData, function(response) {
+//             if (response) {
+//                 if (response.tabid == 'addservices' && response.categories) {
+//                     // Handle the 'addservices' tab response
+//                     var dropdown = $('#serviceCategory'); // Make sure this is your dropdown ID
+//                     dropdown.empty(); // Clear existing options
+//                     dropdown.append('<option selected disabled value="">Choose a category</option>');
+//                     $.each(response.categories, function(index, category) {
+//                         dropdown.append($('<option>', {
+//                             value: category,
+//                             text: category
+//                         }));
+//                     });
+//                 } else {
+//                     // General handling for other tabs
+//                     // Assuming 'udata' is part of the response for other tabs
+//                     // Update tab content if necessary
+//                 }
+                
+//                 // Update UI elements based on response
+//                 $('.tab-pane').removeClass('active');
+//                 $('#' + response.tabid).addClass('active');
+//                 $('.nav-link').removeClass('active');
+//                 clickedTabLink.addClass('active');
+//             } else {
+//                 console.error('Empty response received.');
+//             }
+//         });
+//     });
+// });
 </script>
 
 
