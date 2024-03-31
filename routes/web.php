@@ -30,11 +30,12 @@ Route::post('/login', 'LoginController@login')->name('login.post');
 Route::get('/logout', 'LoginController@logout')->name('logout');
 Route::post('/register', 'LoginController@registeruser')->name('register.post');
 
-
+Route::post('/subscribe', 'LoginController@subscribeuser')->name('subscribe.post');
 
 //Superadmin routes
 Route::post('/dashboard', 'SuperadminController@index')->name('superadmin.index');
 
+Route::post('/createcategory', 'SuperadminController@registercategory')->name('superadmin.registercategory');
 Route::post('/createservices', 'SuperadminController@registerservices')->name('superadmin.registerservices');
 
 

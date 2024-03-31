@@ -9,12 +9,15 @@ use Illuminate\Support\Facades;
 use App\Models\User;
 use App\Models\UserRoles;
 use App\Models\Roles;
+use App\Models\Subscriptions;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Session;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class LoginController extends Controller
 {
@@ -55,6 +58,7 @@ class LoginController extends Controller
         }                  
         
     }
+
     public function redirect()
     {
         $invalid = "Invalid Username/Password"; 
@@ -89,28 +93,37 @@ class LoginController extends Controller
     
                     if ($role->rolename === 'Superadmin') {
         
-                        $userdata = User::all();
+                        //$userdata = User::all();
                         $data = Roles::all();
 
-                        return view('dashboard.admindashboard',['userdata'=>$userdata,'data'=>$data]);
-                        return view('dashboard.admindashboard');
+                        $unpaidsubscribers = DB::table('users')
+                                ->join('subscriptions', 'users.id', '=', 'subscriptions.user_id')
+                                ->where('paid', '=', 'N')
+                                ->select('users.*')
+                                ->get();
+                        $paidsubscribers = DB::table('users')
+                                ->join('subscriptions', 'users.id', '=', 'subscriptions.user_id')
+                                ->where('paid', '=', 'Y')
+                                ->select('users.*')
+                                ->get();
+
+                        return view('dashboard.admindashboard',['unpaidsubscribers' => $unpaidsubscribers, 'paidsubscribers' => $paidsubscribers,'data'=>$data]);
+                        //return view('dashboard.admindashboard');
         
                     } elseif ($role->rolename === 'Admin') {
                         // return view('dashboard.clientdashboard',['userdata'=>$userdata,'data'=>$data]);
                         return view('dashboard.clientdashboard');                                   
-		            }  
-                } else {
-                    $request->session()->put('user_name', $user->name);
-                    $request->session()->put('user_id', $user->id);
+		            } elseif ($role->rolename === 'Admin') {
+                        // return view('dashboard.clientdashboard',['userdata'=>$userdata,'data'=>$data]);
+                        return view('dashboard.clientdashboard');                                   
+                    } else{
 
-                    return redirect(route('home'));
+                        return redirect(route('home'));
+                    }
                 } 
 		    }
         }
         else {
-            $request->session()->put('user_name', $user->name);
-            $request->session()->put('user_id', $user->id);
-
             return redirect(route('home'));
         } 
         
@@ -166,7 +179,15 @@ class LoginController extends Controller
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => bcrypt($data['password']),
-        ]);      
+        ]);    
+
+        $newuser = User::where('email', $data['email'])->first();
+
+        UserRoles::create([
+            'userid' => $newuser->id,
+            'roleid' => '3',
+        ]); 
+
 
         return redirect(route('login'))->with("success", "User Created!!! Login Required");
     }
@@ -178,6 +199,76 @@ class LoginController extends Controller
             Session::flush();
         }
         return redirect(route('login'));
+        
+    }
+
+    public function subscribeuser(Request $request)
+    {
+        if (!empty($request)){
+        $value = $request->subscribe;
+        $interval = $request->months;
+        }else{
+            return view('auth.register');
+        }
+        
+        if (!empty($value)){
+            
+            $user = User::where('id', $value)->first();
+
+            $userrole = UserRoles::where('userid',$user->id)->first();
+
+            if(!empty($userrole)){
+
+                $request->session()->put('user_name', $user->name);
+                $request->session()->put('user_id', $user->id);
+
+                $role = Roles::where('id',$userrole->roleid)->first();
+                $request->session()->put('user_role', $role->rolename);
+    
+                if ($role->rolename === 'Superadmin') {
+    
+                    $userdata = User::all();
+                    $data = Roles::all();
+                    return view('dashboard.admindashboard',['userdata'=>$userdata,'data'=>$data]);
+                    //return view('dashboard.admindashboard');
+    
+                } elseif ($role->rolename === 'Admin') {
+                    return view('dashboard.clientdashboard',['userdata'=>$userdata,'data'=>$data]);
+                    //return view('dashboard.clientdashboard');
+    
+                } elseif ($role->rolename === 'Normal') {
+                    // print($value);
+                    // exit;
+                    $currentDateTime = Carbon::now();
+                    //$newDateTime = Carbon::now()->addMonth();
+                    $newDateTime = Carbon::now()->addMonth($interval);
+                    // print($currentDateTime);
+                    // print($newDateTime);
+                    // exit;
+        
+                Subscriptions::create([
+                    'user_id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'request' => 'Y',
+                    'request_interval' => $interval,
+                    'paid' => 'N',
+                    'start_date' => $currentDateTime,
+                    'end_date' => $newDateTime,
+
+                ]);      
+
+
+                return redirect(route('home'))->with("success", "Requested for Subscription!!!  We will contact you soon.");
+                }      
+                
+            }else{
+                return view('auth.login'); 
+            }     
+		}
+        else {           
+            return view('auth.login'); 
+        }                  
         
     }
 }

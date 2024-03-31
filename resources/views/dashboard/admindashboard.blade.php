@@ -42,8 +42,30 @@
         </tr>
       </thead>
       <tbody>
-      @isset($userdata)
-      @foreach ($userdata as $value)
+      @isset($paidsubscribers)
+      @foreach ($paidsubscribers as $value)
+        <tr>
+          <th scope="row">1</th>
+          <td>{{$value->name}}</td>
+          <td>{{$value->email}}</td>
+          <td>Superadmin</td>
+        </tr>
+      @endforeach
+      @endisset
+      </tbody>
+    </table>
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th scope="col">#</th>
+          <th scope="col">First</th>
+          <th scope="col">Last</th>
+          <th scope="col">Handle</th>
+        </tr>
+      </thead>
+      <tbody>
+      @isset($unpaidsubscribers)
+      @foreach ($unpaidsubscribers as $value)
         <tr>
           <th scope="row">1</th>
           <td>{{$value->name}}</td>
@@ -65,23 +87,27 @@
           </tr>
         </thead>
         <tbody class="tbody">
-        @isset($udata)
-        @php
-    $udataA = json_decode($udata);
-@endphp
-          @foreach ($udataA as $value)
-          {{$value}}
           <tr>
             <th scope="row">1</th>
-            <td>{{$value->name}}</td>
           </tr>
-          @endforeach
-        @endisset
         </tbody>
     </table>
   </div>
 
 <div class="tab-pane" id="addservices">
+  <h2>Add New Category</h2>
+  <input type="hidden" class="form-control" id="addservices" name="addservices">
+    {!!Form::open(['method'=>'POST','url'=>'/createcategory','class'=>'form-inline'])!!}
+    @csrf
+
+      <div class="mb-3">
+        <label for="category_name" class="form-label">Category Name</label>
+        <input type="text" class="form-control" id="category_name" name="category_name" required>
+      </div>
+
+      <button type="submit" class="btn btn-primary">Submit</button>
+      {!!Form::close() !!}
+
   <h2>Add New Service</h2>
   {!!Form::open(['method'=>'POST','url'=>'/createservices','class'=>'form-inline'])!!}
   @csrf
@@ -124,46 +150,38 @@
 
 
 <script>
-  $(document).ready(function() {
+ $(document).ready(function() {
     $('.nav-link').click(function(event) {
-        event.preventDefault(); // Prevent default link behavior
-        var tabid = $(this).attr('data-target').substring(1); // Extract tab ID
-        var url = '/dashboard'; // Adjust if your endpoint URL is different
+        event.preventDefault();
+        var tabid = $(this).attr('data-target').substring(1);
+        var url = '/dashboard';
         var infoData = { tabid: tabid, _token: "{{csrf_token()}}" };
         var clickedTabLink = $(this);
 
         $.post(url, infoData, function(response) {
-            if (response.tabid == 'services' && response.udata) {
-                // Clear existing content in the table, except for the header
-                $('#services .table .tbody').empty();
-                
-                // Dynamically add each user to the table
-                $.each(response.udata, function(index, udata) {
+            $('.tab-pane.active .table .tbody').empty();
+
+            if (response.tabid == 'services' && response.servicesNames) {
+                $.each(response.servicesNames, function(index, servicesNames) {
                     var row = `<tr>
-                                <th scope="row">${index + 1}</th>
-                                <td>${udata.name}</td>
+                                 <th scope="row">${index + 1}</th>
+                                 <td>${servicesNames}</td>
+                                 <td><button type="button" class="btn btn-primary btn-edit" onclick="editService(${index})">Edit</button></td>
                                </tr>`;
                     $('#services .table .tbody').append(row);
                 });
             } else if (response.tabid == 'addservices' && response.categories) {
-                // Handle the 'addservices' tab response
-                var dropdown = $('#category_id'); // Make sure this is your dropdown ID
-                    dropdown.empty(); // Clear existing options
-                    dropdown.append('<option selected disabled value="">Choose a category</option>');
-                    $.each(response.categories, function(index, category) {
-                      //console.log(category);
-                        dropdown.append($('<option>', {
-                            value: category.id,
-                            text: category.category_name
-                          }));
-                    });
-                } else {
-                    // General handling for other tabs
-                    // Assuming 'udata' is part of the response for other tabs
-                    // Update tab content if necessary
-                } // Include additional else if blocks for other tabs as necessary
+                var dropdown = $('#category_id');
+                dropdown.empty();
+                dropdown.append('<option selected disabled value="">Choose a category</option>');
+                $.each(response.categories, function(index, category) {
+                    dropdown.append($('<option>', {
+                        value: category.id,
+                        text: category.category_name
+                    }));
+                });
+            }
             
-            // Update UI elements based on response
             $('.tab-pane').removeClass('active');
             $('#' + response.tabid).addClass('active');
             $('.nav-link').removeClass('active');
@@ -174,46 +192,11 @@
     });
 });
 
-// $(document).ready(function() {
-//     $('.nav-link').click(function(event) {
-//         event.preventDefault(); // Prevent default link behavior
-//         var tabid = $(this).attr('data-target').substring(1); // Extract tab ID
-//         var url = '/dashboard'; // Adjust if your endpoint URL is different
-//         var infoData = { tabid: tabid, _token: "{{csrf_token()}}" };
-//         var clickedTabLink = $(this); // Ensure you capture this for later use
+function editService(serviceIndex) {
+    // Placeholder function for future edit functionality
+    console.log("Edit service at index:", serviceIndex);
+}
 
-//         $.post(url, infoData, function(response) {
-//             if (response) {
-//                 if (response.tabid == 'addservices' && response.categories) {
-//                     // Handle the 'addservices' tab response
-//                     var dropdown = $('#serviceCategory'); // Make sure this is your dropdown ID
-//                     dropdown.empty(); // Clear existing options
-//                     dropdown.append('<option selected disabled value="">Choose a category</option>');
-//                     $.each(response.categories, function(index, category) {
-//                         dropdown.append($('<option>', {
-//                             value: category,
-//                             text: category
-//                         }));
-//                     });
-//                 } else {
-//                     // General handling for other tabs
-//                     // Assuming 'udata' is part of the response for other tabs
-//                     // Update tab content if necessary
-//                 }
-                
-//                 // Update UI elements based on response
-//                 $('.tab-pane').removeClass('active');
-//                 $('#' + response.tabid).addClass('active');
-//                 $('.nav-link').removeClass('active');
-//                 clickedTabLink.addClass('active');
-//             } else {
-//                 console.error('Empty response received.');
-//             }
-//         });
-//     });
-// });
 </script>
-
-
 
 @endsection

@@ -11,12 +11,14 @@ use App\Models\UserRoles;
 use App\Models\Roles;
 use App\Models\Categories;
 use App\Models\Services;
+use App\Models\Subscriptions;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\DB;
 
 class SuperadminController extends Controller
 {
@@ -62,9 +64,20 @@ class SuperadminController extends Controller
         $role = Roles::where('id',$userrole->roleid)->first();
         $request->session()->put('user_role', $role->rolename);
 
-        $userdata = User::all();
+        $unpaidsubscribers = DB::table('users')
+                                ->join('subscriptions', 'users.id', '=', 'subscriptions.user_id')
+                                ->where('paid', '=', 'N')
+                                ->select('users.*')
+                                ->get();
+        $paidsubscribers = DB::table('users')
+                                ->join('subscriptions', 'users.id', '=', 'subscriptions.user_id')
+                                ->where('paid', '=', 'Y')
+                                ->select('users.*')
+                                ->get();
+
+        //$userdata = User::all();
         
-        return response()->json(['userdata' => $userdata, 'tabid' => $tabid]);
+        return response()->json(['unpaidsubscribers' => $unpaidsubscribers, 'paidsubscribers' => $paidsubscribers,'tabid' => $tabid]);
 
         // return view('dashboard.admindashboard')->with(['userdata' => $userdata, 'tabid' => $tabid])
         //                                         ->with(['jsonData' => json_encode(['udata' => $udata, 'tabid' => $tabid])]);
@@ -93,13 +106,10 @@ class SuperadminController extends Controller
             $role = Roles::where('id',$userrole->roleid)->first();
             $request->session()->put('user_role', $role->rolename);
 
-            $udata = User::all();
+            $services = Services::all();
 
-            return response()->json(['udata' => $udata, 'tabid' => $tabid]);
 
-            // return view('dashboard.admindashboard')->with(['udata' => $udata, 'tabid' => $tabid])
-            //                                         ->with(['jsonData' => json_encode(['udata' => $udata, 'tabid' => $tabid])]);
-            //return view('dashboard.admindashboard', compact('udata', 'tabid'));             
+            return response()->json(['services' => $services, 'tabid' => $tabid]);          
         
     }
 
@@ -117,16 +127,9 @@ class SuperadminController extends Controller
         $request->session()->put('user_role', $role->rolename);
     
         // Check if the requested tab is 'addservices'
-        if ($tabid == 'addservices') {
             // Fetch categories and return only the names
             $categories = Categories::all();
             return response()->json(['categories' => $categories, 'tabid' => $tabid]);
-        } else {
-            // Original functionality for other tabs
-            $usdata = User::all();
-            $categories = Categories::all(); // This line may not be necessary if not used in other tabs
-            return response()->json(['usdata' => $usdata, 'tabid' => $tabid, 'categories' => $categories]);
-        }
     }
     
 
@@ -191,8 +194,39 @@ class SuperadminController extends Controller
         $role = Roles::where('id',$userrole->roleid)->first();
         $request->session()->put('user_role', $role->rolename);
 
-        $userdata = User::all();
-        
-        return view('dashboard.admindashboard',['userdata'=>$userdata,'tabid'=>$tabid]);
+            // Fetch categories and return only the names
+            $categories = Categories::all();
+            return response()->json(['categories' => $categories, 'tabid' => $tabid]);
+    }
+
+    public function registercategory(Request $request)
+    {
+        // print($request);
+        // exit;
+        $request->validate([
+            'category_name'    => 'required',
+        ]);
+
+        $data = $request->all();
+        Categories::create([
+            'category_name' => $data['category_name'],
+        ]);      
+
+        $value = Session::get('user_id');
+        $tabid = $request->addservices;
+        // print($value);
+        // exit;
+        $user = User::where('id', $value)->first();
+
+        $request->session()->put('user_name', $user->name);
+        $request->session()->put('user_id', $user->id);
+        $tab = $request->input('tab', 'users');
+        $userrole = UserRoles::where('userid',$user->id)->first();
+
+        $role = Roles::where('id',$userrole->roleid)->first();
+        $request->session()->put('user_role', $role->rolename);
+
+        $categories = Categories::all();
+        return response()->json(['categories' => $categories, 'tabid' => $tabid]);
     }
 }

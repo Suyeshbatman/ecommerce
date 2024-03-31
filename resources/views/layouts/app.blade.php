@@ -14,6 +14,46 @@
         <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css" rel="stylesheet" />
         <!-- Core theme CSS (includes Bootstrap)-->
         <link href="css/main.css" rel="stylesheet" />
+
+        <style>
+
+.info-container {
+  text-align: center;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  padding: 20px;
+  border-radius: 8px;
+}
+
+.info-container h2 {
+  color: #333;
+}
+
+.info-container p {
+  color: #666;
+}
+
+#email {
+  padding: 10px;
+  margin-top: 20px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: calc(100% - 24px); /* Input width - padding */
+}
+
+#subscribe {
+  background-color: #007bff;
+  color: white;
+  padding: 10px 20px;
+  margin-top: 10px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+#subscribe:hover {
+  background-color: #0056b3;
+}
+</style>
         
     </head>
 <body>
@@ -24,6 +64,9 @@
                     @yield('superadmincontent')
                 @elseif(Session::get('user_role') == 'Admin')
                     @yield('admincontent')
+                @else 
+                @yield('content')
+                @include('include.menubar')
             @endif
         @else
             @yield('content')
