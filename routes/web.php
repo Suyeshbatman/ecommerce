@@ -37,6 +37,8 @@ Route::post('/dashboard', 'SuperadminController@index')->name('superadmin.index'
 
 Route::post('/createcategory', 'SuperadminController@registercategory')->name('superadmin.registercategory');
 Route::post('/createservices', 'SuperadminController@registerservices')->name('superadmin.registerservices');
+Route::get('/fetch-services', 'SuperadminController@fetchServices')->name('superadmin.fetchservices');
+Route::get('/fetch-categories', 'SuperadminController@fetchCategories')->name('fetch.categories');
 
 
 // Route::post('/usersdashboard', 'SuperadminController@superuser')->name('superadmin.users');

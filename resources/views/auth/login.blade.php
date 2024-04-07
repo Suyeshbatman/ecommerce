@@ -13,14 +13,14 @@
             <div class="card">
                 <div class="card-header"></div>
                 <div class="card-body">
-                    {!!Form::open(['method'=>'POST','url'=>'/login','class'=>'form-inline'])!!}
+                    {!!Form::open(['method'=>'POST','url'=>'/login'])!!} <!-- Removed 'class'=>'form-inline' -->
                         @csrf
-                        <div class="form-group">
+                        <div class="form-group mb-3"> <!-- Added Bootstrap margin-bottom class for spacing -->
                             <label for="exampleInputEmail1" class="form-label">Email address</label>
                             <input type="email" class="form-control" id="email" name="email" value="{{old('email')}}" aria-describedby="emailHelp" placeholder="Enter email">
                             <span class="text-danger">@error('email') {{$message}} @enderror</span>
                         </div>
-                        <div class="form-group">
+                        <div class="form-group mb-3"> <!-- Added Bootstrap margin-bottom class for spacing -->
                             <label for="exampleInputPassword1" class="form-label">Password</label>
                             <input type="password" class="form-control" id="password" name="password" value="{{old('password')}}" placeholder="Password">
                             <span class="text-danger">@error('password') {{$message}} @enderror</span>
