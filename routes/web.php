@@ -5,7 +5,6 @@ use Illuminate\Support\Facades;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\SuperadminController;
-use App\Http\Controllers\ClientController;
 
 /*
 |--------------------------------------------------------------------------
@@ -38,11 +37,13 @@ Route::post('/dashboard', 'SuperadminController@index')->name('superadmin.index'
 
 Route::post('/createcategory', 'SuperadminController@registercategory')->name('superadmin.registercategory');
 Route::post('/createservices', 'SuperadminController@registerservices')->name('superadmin.registerservices');
+Route::get('/fetch-services', 'SuperadminController@fetchServices')->name('superadmin.fetchservices');
+Route::get('/fetch-categories', 'SuperadminController@fetchCategories')->name('fetch.categories');
 
-//ClientDashboard Routes
+
+
 Route::post('/clientdashboard', 'ClientController@index')->name('client.index');
 Route::post('/getservices', 'ClientController@getservices')->name('client.getservices');
-
 
 // Route::post('/usersdashboard', 'SuperadminController@superuser')->name('superadmin.users');
 // Route::post('/servicesdashboard', 'SuperadminController@superservices')->name('superadmin.services');
@@ -63,4 +64,9 @@ Route::post('/getservices', 'ClientController@getservices')->name('client.getser
     //     Route::resource('userroles','UserRoles\UserRolesController');
 
     // });
+
+
+
+
+
 
