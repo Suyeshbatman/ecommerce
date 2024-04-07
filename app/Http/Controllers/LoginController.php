@@ -46,6 +46,7 @@ class LoginController extends Controller
                     //return view('dashboard.admindashboard');
     
                 } elseif ($role->rolename === 'Admin') {
+                    $userdata = User::all();
                     return view('dashboard.clientdashboard',['userdata'=>$userdata,'data'=>$data]);
                     //return view('dashboard.clientdashboard');
     
@@ -111,9 +112,12 @@ class LoginController extends Controller
                         //return view('dashboard.admindashboard');
         
                     } elseif ($role->rolename === 'Admin') {
-                        // return view('dashboard.clientdashboard',['userdata'=>$userdata,'data'=>$data]);
-                        return view('dashboard.clientdashboard');                                   
-		            } elseif ($role->rolename === 'Admin') {
+
+                        $value = Session::get('user_id');
+                        $userdata = User::where('id', $value)->first();
+
+                        return view('dashboard.clientdashboard',['userdata'=>$userdata]);                               
+		            } elseif ($role->rolename === 'Normal') {
                         // return view('dashboard.clientdashboard',['userdata'=>$userdata,'data'=>$data]);
                         return view('dashboard.clientdashboard');                                   
                     } else{

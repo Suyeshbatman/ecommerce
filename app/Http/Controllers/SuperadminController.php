@@ -24,8 +24,7 @@ class SuperadminController extends Controller
 {
     public function index(Request $request)
     {
-        $tabid = $request->tabid;
-        
+
         if ($request->tabid == 'users'){
 
             return $this->superuser($request);
@@ -48,17 +47,13 @@ class SuperadminController extends Controller
     public function superuser(Request $request)
     {
         $request = request();
-        $tabid = $request->tabid;
-        // print($request);
-        // exit;
+        $tabid = 'users';
         $value = Session::get('user_id');
-        // print($value);
-        // exit;
+
         $user = User::where('id', $value)->first();
 
         $request->session()->put('user_name', $user->name);
         $request->session()->put('user_id', $user->id);
-        $tab = $request->input('tab', 'users');
         $userrole = UserRoles::where('userid',$user->id)->first();
 
         $role = Roles::where('id',$userrole->roleid)->first();
@@ -75,79 +70,65 @@ class SuperadminController extends Controller
                                 ->select('users.*')
                                 ->get();
 
-        //$userdata = User::all();
         
-        return response()->json(['unpaidsubscribers' => $unpaidsubscribers, 'paidsubscribers' => $paidsubscribers,'tabid' => $tabid]);
-
-        // return view('dashboard.admindashboard')->with(['userdata' => $userdata, 'tabid' => $tabid])
-        //                                         ->with(['jsonData' => json_encode(['udata' => $udata, 'tabid' => $tabid])]);
-
-        // return view('dashboard.admindashboard',['userdata'=>$userdata,'tab'=>$tab]);
-        //return view('dashboard.admindashboard');      
+        return response()->json(['unpaidsubscribers' => $unpaidsubscribers, 'paidsubscribers' => $paidsubscribers,'tabid' => $tabid]);    
         
     }
 
     public function superservices(Request $request)
     {
         $request = request();
-        // print($request);
-        // exit;
-            $tabid = $request->tabid;
+
+            $tabid = 'services';
             $value = Session::get('user_id');
-            // print($value);
-            // exit;
+
             $user = User::where('id', $value)->first();
 
             $request->session()->put('user_name', $user->name);
             $request->session()->put('user_id', $user->id);
-            //$tab = $request->input('tab', 'services');
             $userrole = UserRoles::where('userid',$user->id)->first();
     
             $role = Roles::where('id',$userrole->roleid)->first();
             $request->session()->put('user_role', $role->rolename);
 
-            $services = Services::all();
-
-
-            return response()->json(['services' => $services, 'tabid' => $tabid]);          
+            // $services = Services::all();  change this 
+            $servicesNames = Services::pluck('service_name'); 
+            return response()->json(['tabid' => $tabid, 'servicesNames' => $servicesNames]);         
         
     }
 
     public function addservices(Request $request)
-{
-    $tabid = $request->tabid; 
-    $value = Session::get('user_id');
-    $user = User::where('id', $value)->first();
-
-    // Preserving session setup
-    $request->session()->put('user_name', $user->name);
-    $request->session()->put('user_id', $user->id);
-    $userrole = UserRoles::where('userid', $user->id)->first();
-    $role = Roles::where('id', $userrole->roleid)->first();
-    $request->session()->put('user_role', $role->rolename);
-
-    // Fetch categories and return them to the frontend
-    $categories = Categories::all();
+    {
+        $request = request();
+        $tabid = 'addservices';
+        $value = Session::get('user_id');
+        $user = User::where('id', $value)->first();
     
-    // Return categories data along with the tab ID
-    return response()->json(['categories' => $categories, 'tabid' => $tabid]);
-}
+        // Preserving session setup
+        $request->session()->put('user_name', $user->name);
+        $request->session()->put('user_id', $user->id);
+        $userrole = UserRoles::where('userid',$user->id)->first();
+        $role = Roles::where('id',$userrole->roleid)->first();
+        $request->session()->put('user_role', $role->rolename);
+    
+        // Check if the requested tab is 'addservices'
+            // Fetch categories and return only the names
+            $categories = Categories::all();
+            return response()->json(['categories' => $categories, 'tabid' => $tabid]);
+    }
     
 
     public function revenue(Request $request)
     {
         $request = request();
-        // print($request);
-        // exit;
+
         $tabid = $request->tabid;
         $value = Session::get('user_id');
-        // print($value);
-        // exit;
+
         $user = User::where('id', $value)->first();
 
         $request->session()->put('user_name', $user->name);
         $request->session()->put('user_id', $user->id);
-        //$tab = $request->input('tab', 'revenue');
         $userrole = UserRoles::where('userid',$user->id)->first();
 
         $role = Roles::where('id',$userrole->roleid)->first();
@@ -164,8 +145,7 @@ class SuperadminController extends Controller
 
     public function registerservices(Request $request)
     {
-        // print($request);
-        // exit;
+
         $request->validate([
             'category_id' => 'required',
             'service_name'    => 'required',
@@ -182,29 +162,26 @@ class SuperadminController extends Controller
         ]);      
 
         $value = Session::get('user_id');
-        $tabid = $request->addservices;
-        // print($value);
-        // exit;
+        $tabid = 'addservices';
+
         $user = User::where('id', $value)->first();
 
         $request->session()->put('user_name', $user->name);
         $request->session()->put('user_id', $user->id);
-        $tab = $request->input('tab', 'users');
         $userrole = UserRoles::where('userid',$user->id)->first();
 
         $role = Roles::where('id',$userrole->roleid)->first();
         $request->session()->put('user_role', $role->rolename);
 
-        $services = Services::all(); // Fetch updated list of services
-        return response()->json(['success' => true, 'activateTab' => 'services', 'services' => $services]);
+            // Fetch categories and return only the names
+            $categories = Categories::all();
+            return response()->json(['categories' => $categories, 'tabid' => $tabid]);
     }
 
     public function registercategory(Request $request)
     {
-        // print($request);
-        // exit;
         $request->validate([
-            'category_name'    => 'required',
+            'category_name'    => 'required|unique:categories',
         ]);
 
         $data = $request->all();
@@ -213,32 +190,20 @@ class SuperadminController extends Controller
         ]);      
 
         $value = Session::get('user_id');
+        // $tabid = $request->tabid;
         $tabid = 'addservices';
-        // print($value);
-        // exit;
+        
         $user = User::where('id', $value)->first();
 
         $request->session()->put('user_name', $user->name);
         $request->session()->put('user_id', $user->id);
-        $tab = $request->input('tab', 'users');
         $userrole = UserRoles::where('userid',$user->id)->first();
 
         $role = Roles::where('id',$userrole->roleid)->first();
         $request->session()->put('user_role', $role->rolename);
 
         $categories = Categories::all();
-        return view('dashboard.admindashboard',['tabid'=> $tabid, 'categories' => $categories]);
-    }
-
-    public function fetchServices()
-    {
-    $services = Services::all(); // Fetch all services
-    return response()->json(['services' => $services]);
-    }
-
-    public function fetchCategories()
-    {
-    $categories = Categories::all();
-    return response()->json(['categories' => $categories]);
+        return view('dashboard.admindashboard',['categories' => $categories, 'tabid' => $tabid]);
+        // return response()->json(['categories' => $categories, 'tabid' => $tabid]);
     }
 }
