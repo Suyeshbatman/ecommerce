@@ -56,12 +56,12 @@
 
   <div class="tab-pane" id="providerservices">
     <h2>Add Service</h2>
-    {!!Form::open(['method'=>'POST','url'=>'/addservices','class'=>'form-inline'])!!}
+    {!!Form::open(['method'=>'POST','url'=>'/createavailableservices', 'enctype' => 'multipart/form-data'])!!}
     @csrf
       <!-- New Categories Dropdown -->
       <input type="hidden" class="form-control" id="providerservices" name="providerservices">
 
-    <div class="mb-3">
+    <div class="mb-3" class="d-flex justify-content-center">
         <label for="category_id" class="form-label">Category</label>
         <select class="form-select" id="category_id" name="category_id" required>
           <option selected disabled value="">Choose a category</option>
@@ -69,7 +69,7 @@
         </select>
     </div>
 
-    <div class="mb-3">
+    <div class="mb-3" id="serv" style="display:none;" class="d-flex justify-content-center">
         <label for="services_id" class="form-label">Services</label>
         <select class="form-select" id="services_id" name="services_id" required>
           <option selected disabled value="">Choose a service</option>
@@ -78,72 +78,101 @@
     </div>
 
     <div id="weekday-container">
+      <label for="availability">Availability</label>
         <div>
             <input type="checkbox" id="monday" name="monday">
             <label for="monday">Monday</label>
-            <div class="show times" type= "hidden" id="mondaycheck" name="mondaycheck">
-              <input type="checkbox" id="monday-morning" name="monday-time">
+            <div class="show times"style="display:none;" id="mondaycheck" name="mondaycheck">
+              <input type="checkbox" id="monday_morning" name="monday_morning" value ="1">
               <label for="monday-morning">Morning</label>
-              <input type="checkbox" id="monday-afternoon" name="monday-time">
+              <input type="checkbox" id="monday_afternoon" name="monday_afternoon" value ="1">
               <label for="monday-afternoon">Afternoon</label>
-              <input type="checkbox" id="monday-evening" name="monday-time">
+              <input type="checkbox" id="monday_evening" name="monday_evening" value ="1">
               <label for="monday-evening">Evening</label>
             </div>
         </div>
         <div>
             <input type="checkbox" id="tuesday" name="tuesday">
             <label for="tuesday">Tuesday</label>
-            <div class="show times" id="tuesdaycheck" name="tuesdaycheck">
-              <input type="checkbox" id="tuesday-morning" name="tuesday-time">
+            <div class="show times" style="display:none;" id="tuesdaycheck" name="tuesdaycheck">
+              <input type="checkbox" id="tuesday_morning" name="tuesday_morning" value ="1">
               <label for="tuesday-morning">Morning</label>
-              <input type="checkbox" id="tuesday-afternoon" name="tuesday-time">
+              <input type="checkbox" id="tuesday_afternoon" name="tuesday_afternoon" value ="1">
               <label for="tuesday-afternoon">Afternoon</label>
-              <input type="checkbox" id="tuesday-evening" name="tuesday-time">
+              <input type="checkbox" id="tuesday_evening" name="tuesday_evening" value ="1">
               <label for="tuesday-evening">Evening</label>
             </div>
         </div>
         <div>
             <input type="checkbox" id="wednesday" name="wednesday">
             <label for="wednesday">Wednesday</label>
-            <div class="show times" id="wednesdaycheck" name="wednesdaycheck">
-              <input type="checkbox" id="wednesday-morning" name="wednesday-time">
+            <div class="show times" style="display:none;" id="wednesdaycheck" name="wednesdaycheck">
+              <input type="checkbox" id="wednesday_morning" name="wednesday_morning" value ="1">
               <label for="wednesday-morning">Morning</label>
-              <input type="checkbox" id="wednesday-afternoon" name="wednesday-time">
+              <input type="checkbox" id="wednesday_afternoon" name="wednesday_afternoon" value ="1">
               <label for="wednesday-afternoon">Afternoon</label>
-              <input type="checkbox" id="wednesday-evening" name="wednesday-time">
+              <input type="checkbox" id="wednesday_evening" name="wednesday_evening" value ="1">
               <label for="wednesday-evening">Evening</label>
             </div>
         </div>
         <div>
             <input type="checkbox" id="thursday" name="thursday">
             <label for="thursday">Thursday</label>
-            <div class="show times" id="thursdaycheck" name="thursdaycheck">
-              <input type="checkbox" id="thursday-morning" name="thursday-time">
+            <div class="show times" style="display:none;" id="thursdaycheck" name="thursdaycheck">
+              <input type="checkbox" id="thursday_morning" name="thursday_morning" value ="1">
               <label for="thursday-morning">Morning</label>
-              <input type="checkbox" id="thursday-afternoon" name="thursday-time">
+              <input type="checkbox" id="thursday_afternoon" name="thursday_afternoon" value ="1">
               <label for="thursday-afternoon">Afternoon</label>
-              <input type="checkbox" id="thursday-evening" name="thursday-time">
+              <input type="checkbox" id="thursday_evening" name="thursday_evening" value ="1">
               <label for="thursday-evening">Evening</label>
             </div>
         </div>
         <div>
             <input type="checkbox" id="friday" name="friday">
             <label for="friday">Friday</label>
-            <div class="show times" id="fridaycheck" name="fridaycheck">
-              <input type="checkbox" id="friday-morning" name="friday-time">
+            <div class="show times" style="display:none;" id="fridaycheck" name="fridaycheck">
+              <input type="checkbox" id="friday_morning" name="friday_morning" value ="1">
               <label for="friday-morning">Morning</label>
-              <input type="checkbox" id="friday-afternoon" name="friday-time">
+              <input type="checkbox" id="friday_afternoon" name="friday_afternoon" value ="1">
               <label for="friday-afternoon">Afternoon</label>
-              <input type="checkbox" id="friday-evening" name="friday-time">
+              <input type="checkbox" id="friday_evening" name="friday_evening" value ="1">
               <label for="friday-evening">Evening</label>
             </div>
         </div>
     </div>
 
-      <div class="mb-3">
-        <label for="rate" class="form-label">Hourly rate</label>
-        <input type="number" class="form-control" id="rate" name="rate" required>
+    <div>
+      <label for="image" class="form-label">Choose an Image</label>
+      <div class="mb-4 d-flex justify-content-center" id="imagepreview">
+          <img id="imagepreview" src="https://mdbootstrap.com/img/Photos/Others/placeholder.jpg" alt="example placeholder" style="width: 300px;" />
       </div>
+      <div class="d-flex justify-content-center">
+          <div data-mdb-button-init data-mdb-ripple-init class="btn btn-primary btn-rounded">
+              <label class="form-label text-white m-1" for="image">Choose file</label>
+              <input type="file" class="form-control d-none" id="image" name="image" accept="image/*" required/>
+          </div>
+      </div>
+    </div>
+
+    <div class="mb-3" class="d-flex justify-content-center">
+      <label for="difficulty" class="form-label">Difficulty</label>
+      <input type="number" class="form-control" id="difficulty" name="difficulty" value="" readOnly={true}>
+    </div>
+
+    <div class="mb-3" class="d-flex justify-content-center">
+      <label for="rate" class="form-label">Hourly Rate</label>
+      <input type="number" class="form-control" id="rate" name="rate" required>
+    </div>
+
+    <div class="mb-3" class="d-flex justify-content-center">
+      <label for="zip" class="form-label">Location:Zip Code</label>
+      <input type="number" class="form-control" id="zip" name="zip" required>
+    </div>
+
+    <div class="mb-3" class="d-flex justify-content-center">
+      <label for="city" class="form-label">City</label>
+      <input type="text" class="form-control" id="city" name="city" required>
+    </div>
 
       <button type="submit" class="btn btn-primary">Submit</button>
       {!!Form::close() !!}
@@ -201,11 +230,12 @@
     $('#category_id').change(function(event) {
       event.preventDefault();
       var catid = $(this).val();
+      $('#serv').show('fast');
       //alert(catid);
       var url = '/getservices';
       var infoData = { catid: catid, _token: "{{csrf_token()}}" };
       $.post(url, infoData, function(response) {
-        //console.log(response);
+        console.log(response.services);
           var dropdown = $('#services_id');
           dropdown.empty();
           dropdown.append('<option selected disabled value="">Choose a service</option>');
@@ -220,18 +250,73 @@
 
     });
 
-    $('#monday:checkbox').bind('change', function(event) {
+    $('#services_id').change(function(event) {
       event.preventDefault();
-      if ($(this).is(':checked')) {
-        $('#mondaycheck').toggle();
+      var servid = $(this).val();
+      var url = '/getdifficulty';
+      var infoData = { servid: servid, _token: "{{csrf_token()}}" };
+      $.post(url, infoData, function(response) {
+        //console.log(response.difficulty);
+        var insert = $('#difficulty');
+        insert.val(response.difficulty);
+      });
+    });
+
+
+    document.getElementById('image').addEventListener('change', function(event) {
+            //alert("vayo");
+        var file = event.target.files[0];
+        var reader = new FileReader();
+
+        reader.onload = function(e) {
+            var imagepreview = document.getElementById('imagepreview');
+            imagepreview.innerHTML = '';
+            var imgElement = document.createElement('img');
+            imgElement.src = e.target.result;
+            imgElement.style.maxWidth = '100%';
+            imgElement.style.maxHeight = '100%';
+            imagepreview.appendChild(imgElement);
+        };
+
+        reader.readAsDataURL(file);
+    });
+
+    $('#monday:checkbox').change(function(event) {
+      if($(this).is(":checked")){  //Return true/false 
+            $('#mondaycheck').fadeIn('fast');
+      }else{
+            $('#mondaycheck').fadeOut('fast'); 
+      }
+    });
+    $('#tuesday:checkbox').change(function(event) {
+      if($(this).is(":checked")){  //Return true/false 
+            $('#tuesdaycheck').fadeIn('fast');
+      }else{
+            $('#tuesdaycheck').fadeOut('fast'); 
+      }
+    });
+    $('#wednesday:checkbox').change(function(event) {
+      if($(this).is(":checked")){  //Return true/false 
+            $('#wednesdaycheck').fadeIn('fast');
+      }else{
+            $('#wednesdaycheck').fadeOut('fast'); 
+      }
+    });
+    $('#thursday:checkbox').change(function(event) {
+      if($(this).is(":checked")){  //Return true/false 
+            $('#thursdaycheck').fadeIn('fast');
+      }else{
+            $('#thursdaycheck').fadeOut('fast'); 
+      }
+    });
+    $('#friday:checkbox').change(function(event) {
+      if($(this).is(":checked")){  //Return true/false 
+            $('#fridaycheck').fadeIn('fast');
+      }else{
+            $('#fridaycheck').fadeOut('fast'); 
       }
     });
 });
-
-// function editService(serviceIndex) {
-//     // Placeholder function for future edit functionality
-//     console.log("Edit service at index:", serviceIndex);
-// }
 
 </script>
 

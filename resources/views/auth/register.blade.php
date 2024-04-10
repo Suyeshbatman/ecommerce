@@ -9,7 +9,7 @@
                 <div class="card-header">{{ __('Register') }}</div>
 
                 <div class="card-body">
-                    {!!Form::open(['method'=>'POST','url'=>'/register','class'=>'form-inline'])!!}
+                    {!!Form::open(['method'=>'POST','url'=>'/register'])!!}
                         @csrf
 
                         <div class="form-group row">

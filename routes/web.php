@@ -41,9 +41,11 @@ Route::get('/fetch-services', 'SuperadminController@fetchServices')->name('super
 Route::get('/fetch-categories', 'SuperadminController@fetchCategories')->name('fetch.categories');
 
 
-
+//Admin routes
 Route::post('/clientdashboard', 'ClientController@index')->name('client.index');
 Route::post('/getservices', 'ClientController@getservices')->name('client.getservices');
+Route::post('/createavailableservices', 'ClientController@createavailableservices')->name('client.createavailableservices');
+Route::post('/getdifficulty', 'ClientController@getdifficulty')->name('client.getdifficulty');
 
 // Route::post('/usersdashboard', 'SuperadminController@superuser')->name('superadmin.users');
 // Route::post('/servicesdashboard', 'SuperadminController@superservices')->name('superadmin.services');

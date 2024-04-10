@@ -19,6 +19,7 @@ use Illuminate\Validation\Rules;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\DB;
+use Image;
 
 class ClientController extends Controller
 {
@@ -155,6 +156,61 @@ class ClientController extends Controller
         $tabid = 'providerservices';
 
         return response()->json(['services' => $services, 'tabid' => $tabid]);
+
+    }
+
+    public function getdifficulty(Request $request)
+    {
+        $servid = $request->servid;
+
+        $difficulty = Services::where('id', $servid)->pluck('difficulty');
+        //$tabid = 'providerservices';
+
+        return response()->json(['difficulty' => $difficulty]);
+
+    }
+
+    public function createavailableservices(Request $request)
+    {
+        print($request->monday);
+        exit;
+        $request->validate([
+            'category_id' => 'required',
+            'services_id'    => 'required',
+            'image'    => 'required',
+            'difficulty' => 'required', 
+            'rate' => 'required',
+            'zip' => 'required',
+            'city' => 'required',
+        ]);
+
+        $value = Session::get('user_id');
+        if($request->hasFile('image')){
+            $image = $request->file('image');
+            $filename = time() . '.' . $image->getClientOriginalExtension();
+            Image::make($image)->resize(300, 300)->save( storage_path('public/images/' . $filename ) );
+            // $person->image = $filename;
+            // $person->save();
+        };
+
+        $data = $request->all();
+        Services::create([
+            'user_id' => $value,
+            'category_id' => $data['category_id'],
+            'services_id' => $data['services_id'],
+            'image' => $filename,
+            'difficulty' => $data['difficulty'],
+            'rate' => $data['rate'],
+            'zip' => $data['zip'],
+            'city' => $data['city'],
+        ]);
+
+    
+
+        //$services = Services::where('category_id', $catid)->get();
+        $tabid = 'providerservices';
+
+        //return response()->json(['services' => $services, 'tabid' => $tabid]);
 
     }
 }
