@@ -13,7 +13,7 @@
             <div class="card">
                 <div class="card-header"></div>
                 <div class="card-body">
-                    {!!Form::open(['method'=>'POST','url'=>'/login','class'=>'form-inline'])!!}
+                    {!!Form::open(['method'=>'POST','url'=>'/login'])!!}
                         @csrf
                         <div class="form-group">
                             <label for="exampleInputEmail1" class="form-label">Email address</label>

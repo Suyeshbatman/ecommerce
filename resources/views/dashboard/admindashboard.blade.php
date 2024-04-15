@@ -81,19 +81,17 @@
   <div class="tab-pane" id="services">
     <table class="table table-bordered">
         <thead>
-          <tr>
-            <th scope="col">#</th>
-            <th scope="col">Service Name</th>
-            <th scope="col">Action</th>
-          </tr>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Service Name</th>
+                <th scope="col">Action</th>
+            </tr>
         </thead>
         <tbody class="tbody">
-          <tr>
-            <th scope="row">1</th>
-          </tr>
+            <!-- Table rows will be populated here dynamically -->
         </tbody>
     </table>
-  </div>
+</div>
 
 <div class="tab-pane" id="addservices">
   @isset($tabid)
@@ -101,8 +99,8 @@
   @endisset
 
   <h2>Add New Category</h2>
-  <input type="hidden" class="form-control" id="addservices" name="addservices">
-    {!!Form::open(['method'=>'POST','url'=>'/createcategory'])!!}
+  <input type="hidden" class="form-control" id="addservices" name="addcategotyForm">
+    {!!Form::open(['method'=>'POST','url'=>'/createcategory', 'id'=>'addcategoryForm'])!!}
     @csrf
 
       <div class="mb-3">
@@ -110,7 +108,7 @@
         <input type="text" class="form-control" id="category_name" name="category_name" required>
       </div>
 
-      <button type="submit" class="btn btn-primary">Submit</button>
+      <button type="submit" id="registercategory"class="btn btn-primary">Submit</button>
     {!!Form::close() !!}
 
   <h2>Add New Service</h2>
@@ -195,6 +193,7 @@
 </div>
 
 
+
 <script>
 $(document).ready(function() {
     // Function to populate the services table
@@ -205,7 +204,10 @@ $(document).ready(function() {
             var row = `<tr>
                 <th scope="row">${index + 1}</th>
                 <td>${service.service_name}</td>
-                <td><button type="button" class="btn btn-primary btn-edit" data-service-id="${service.id}">Edit</button></td>
+                <td>
+                    <button type="button" class="btn btn-primary btn-edit" data-service-id="${service.id}">Edit</button>
+                    <button type="button" class="btn btn-danger btn-delete" data-service-id="${service.id}">Delete</button>
+                </td>
             </tr>`;
             tbody.append(row);
         });
@@ -223,7 +225,7 @@ $(document).ready(function() {
     function fetchAndPopulateCategories() {
         $.ajax({
             type: "GET",
-            url: "/fetch-categories", // Correct URL based on the provided routes
+            url: "/fetch-categories",
             success: function(response) {
                 var dropdown = $('#category_id');
                 dropdown.empty();
@@ -249,7 +251,7 @@ $(document).ready(function() {
 
         $.ajax({
             type: "POST",
-            url: '/dashboard', // POST request to match the route method
+            url: '/dashboard',
             data: infoData,
             success: function(response) {
                 activateTab(tabid);
@@ -257,10 +259,7 @@ $(document).ready(function() {
                 if (tabid == 'services' && response.services) {
                     populateServicesTable(response.services);
                 } else if (tabid == 'addservices') {
-                    fetchAndPopulateCategories(); // Fetch and populate categories when Add Services tab is activated
-                }
-                else if (tabid == 'addservices' && response.categories) {
-                  activateTab('addservices');
+                    fetchAndPopulateCategories();
                 }
             },
             error: function(xhr) {
@@ -271,60 +270,98 @@ $(document).ready(function() {
 
     // AJAX submission for 'Add New Service' form
     $('#createServiceForm').submit(function(event) {
-    event.preventDefault();
-    var formData = $(this).serialize();
+        event.preventDefault();
+        var formData = $(this).serialize();
 
-    $.ajax({
-        type: "POST",
-        url: '/createservices', // URL for creating a new service
-        data: formData,
-        headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')}, // CSRF token header
-        success: function(response) {
-            // After successfully adding the service, fetch and update the services table
-            fetchAndUpdateServices(); // Fetch and update services table
-            
-            // Reset the form fields to clear them
-            $('#createServiceForm')[0].reset();
-            // Alternatively, for a jQuery-specific approach: $('#createServiceForm').trigger("reset");
-            
-        },
-        error: function(xhr) {
-            console.error("Submission failed: ", xhr.responseText);
-            // Optionally, provide user feedback about the failure
-            alert("Failed to add service. Please try again.");
+        $.ajax({
+            type: "POST",
+            url: '/createservices',
+            data: formData,
+            headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+            success: function(response) {
+                fetchAndUpdateServices();
+                $('#createServiceForm')[0].reset();
+            },
+            error: function(xhr) {
+                alert("Failed to add service. Please try again.");
+            }
+        });
+    });
+
+    // AJAX submission for 'Add New Category' form
+    $('#addcategoryForm').submit(function(event) {
+        event.preventDefault();
+        var formData = $(this).serialize();
+
+        $.ajax({
+            type: "POST",
+            url: '/createcategory',
+            data: formData,
+            headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+            success: function(response) {
+              Toastify({
+                text: response.message || "Category added successfully!",
+                duration: 3000,
+                close: true,
+                gravity: "top",
+                position: "right",
+                backgroundColor: "#4CAF50",
+            }).showToast();
+                activateTab('addservices');
+                fetchAndPopulateCategories();
+                $('#addcategoryForm')[0].reset();
+            },
+            error: function(xhr) {
+                alert("Failed to add category. Please try again.");
+            }
+        });
+    });
+
+    // Function to fetch the updated list of services and populate the table
+    function fetchAndUpdateServices() {
+        $.ajax({
+            type: "GET",
+            url: '/fetch-services',
+            success: function(response) {
+                populateServicesTable(response.services);
+                activateTab('services');
+            },
+            error: function(xhr) {
+                console.error("Error fetching updated services: ", xhr.responseText);
+            }
+        });
+    }
+
+    // Delegated event handling for delete button clicks
+    $(document).on('click', '.btn-delete', function() {
+        var serviceId = $(this).data('service-id');
+        if (confirm('Are you sure you want to delete this service?')) {
+            $.ajax({
+                type: "POST",
+                url: '/delete-service',
+                data: { id: serviceId, _token: "{{ csrf_token() }}" },
+                success: function(response) {
+                    alert('Service deleted successfully!');
+                    fetchAndUpdateServices();
+                },
+                error: function(xhr) {
+                    alert('Error deleting service: ' + xhr.responseText);
+                }
+            });
         }
     });
-});
-
-// Function to fetch the updated list of services and populate the table
-function fetchAndUpdateServices() {
-    $.ajax({
-        type: "GET",
-        url: '/fetch-services', // Adjust this URL to your actual endpoint for fetching services
-        success: function(response) {
-            populateServicesTable(response.services); // Assuming the response contains an array of services
-            activateTab('services'); // Ensure the 'services' tab is activated
-        },
-        error: function(xhr) {
-            console.error("Error fetching updated services: ", xhr.responseText);
-        }
-    });
-}
 
     // Delegated event handling for edit button clicks
     $(document).on('click', '.btn-edit', function() {
         var serviceId = $(this).data('service-id');
         console.log("Edit service with ID:", serviceId);
-
-        // Placeholder for edit functionality
         $('#editServiceModal').modal('show');
     });
 
     $('#viewdata').change(function(event) {
-      //event.preventDefault();
-      var id = $(this).val();
-      alert(id);
-      activateTab('addservices');
+        var id = $(this).val();
+        alert(id);
+        activateTab('addservices');
     });
 });
 </script>

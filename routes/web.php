@@ -39,6 +39,7 @@ Route::post('/createcategory', 'SuperadminController@registercategory')->name('s
 Route::post('/createservices', 'SuperadminController@registerservices')->name('superadmin.registerservices');
 Route::get('/fetch-services', 'SuperadminController@fetchServices')->name('superadmin.fetchservices');
 Route::get('/fetch-categories', 'SuperadminController@fetchCategories')->name('fetch.categories');
+Route::post('/delete-service', 'SuperadminController@deleteService')->name('delete-service');
 
 
 
