@@ -93,9 +93,6 @@ class LoginController extends Controller
                     $request->session()->put('user_role', $role->rolename);
     
                     if ($role->rolename === 'Superadmin') {
-        
-                        //$userdata = User::all();
-                        $data = Roles::all();
 
                         $unpaidsubscribers = DB::table('users')
                                 ->join('subscriptions', 'users.id', '=', 'subscriptions.user_id')
@@ -133,8 +130,6 @@ class LoginController extends Controller
                                 ->join('categories', 'available__services.category_id', '=', 'categories.id')
                                 ->select('available__services.id','available__services.category_id','categories.category_name', 'available__services.services_id','services.service_name', 'services.description', 'available__services.image', 'available__services.rate', 'available__services.zip','available__services.city')
                                 ->get();
-                        // print($availableservices);
-                        // exit;
                 
                         return view('home',['userdata'=>$userdata, 'availableservices'=>$availableservices]);                                 
                     } else{
@@ -276,11 +271,17 @@ class LoginController extends Controller
                     'paid' => 'N',
                     'start_date' => $currentDateTime,
                     'end_date' => $newDateTime,
-
-                ]);      
-
-
-                return redirect(route('home'))->with("success", "Requested for Subscription!!!  We will contact you soon.");
+                ]);   
+                $value = Session::get('user_id');
+                $userdata = User::where('id', $value)->first();
+                $availableservices = DB::table('available__services')
+                        ->join('services', 'available__services.services_id', '=', 'services.id')
+                        ->join('categories', 'available__services.category_id', '=', 'categories.id')
+                        ->select('available__services.id','available__services.category_id','categories.category_name', 'available__services.services_id','services.service_name', 'services.description', 'available__services.image', 'available__services.rate', 'available__services.zip','available__services.city')
+                        ->get();
+        
+                return view('home',['userdata'=>$userdata, 'availableservices'=>$availableservices]);  
+                //return redirect(route('home'))->with("success", "Requested for Subscription!!!  We will contact you soon.");
                 }      
                 
             }else{
