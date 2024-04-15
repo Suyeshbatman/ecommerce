@@ -24,8 +24,12 @@
                     <span class="badge bg-dark text-white ms-1 rounded-pill">0</span>
                 </button>
             </form>
+            @if(Session::has('user_role'))
+            User: 
+            {{ Session::get('user_role')}} :
+            @endif
             @if(Session::has('user_name'))
-            {{ Session::get('user_name')}}
+            {{ Session::get('user_name')}}        
                 <a href="{{route('logout')}}">
                     <button class="btn btn-outline-dark" >
                         <!-- <i class="bi-cart-fill me-1"></i> -->
@@ -37,9 +41,6 @@
                     <button class="btn btn-outline-dark">
                         Login
                     </button>
-                    <!-- <button class="btn btn-outline-dark" >
-                        Login
-                    </button> -->
                 </a>
                 <a href="{{route('register')}}">
                     <button class="btn btn-outline-dark" >

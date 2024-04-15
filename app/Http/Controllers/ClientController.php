@@ -11,6 +11,7 @@ use App\Models\UserRoles;
 use App\Models\Roles;
 use App\Models\Categories;
 use App\Models\Services;
+use App\Models\Available_Services;
 use App\Models\Subscriptions;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Response;
@@ -19,7 +20,6 @@ use Illuminate\Validation\Rules;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\DB;
-use Image;
 
 class ClientController extends Controller
 {
@@ -172,8 +172,9 @@ class ClientController extends Controller
 
     public function createavailableservices(Request $request)
     {
-        print($request->monday);
-        exit;
+        // print($request->monday);
+        // exit;
+        $value = Session::get('user_id');
         $request->validate([
             'category_id' => 'required',
             'services_id'    => 'required',
@@ -184,17 +185,18 @@ class ClientController extends Controller
             'city' => 'required',
         ]);
 
-        $value = Session::get('user_id');
+
         if($request->hasFile('image')){
-            $image = $request->file('image');
-            $filename = time() . '.' . $image->getClientOriginalExtension();
-            Image::make($image)->resize(300, 300)->save( storage_path('public/images/' . $filename ) );
+            $imagefile = $request->file('image');
+            $filename = time() . '.' . $imagefile->getClientOriginalExtension();
+            $imagefile->storeAs('public/images', $filename);
+            //$imagefile->move('images', $filename);
             // $person->image = $filename;
             // $person->save();
         };
 
         $data = $request->all();
-        Services::create([
+        available_services::create([
             'user_id' => $value,
             'category_id' => $data['category_id'],
             'services_id' => $data['services_id'],
@@ -205,12 +207,16 @@ class ClientController extends Controller
             'city' => $data['city'],
         ]);
 
-    
+        
+        $userdata = User::where('id', $value)->first();
+        $availableservices = DB::table('available__services')
+                ->join('services', 'available__services.services_id', '=', 'services.id')
+                ->join('categories', 'available__services.category_id', '=', 'categories.id')
+                ->where('user_id', $value)
+                ->select('available__services.id','available__services.category_id','categories.category_name', 'available__services.services_id','services.service_name', 'services.description', 'available__services.image', 'available__services.rate', 'available__services.zip','available__services.city')
+                ->get();
 
-        //$services = Services::where('category_id', $catid)->get();
-        $tabid = 'providerservices';
-
-        //return response()->json(['services' => $services, 'tabid' => $tabid]);
+        return view('dashboard.clientdashboard',['userdata'=>$userdata, 'availableservices'=>$availableservices]);
 
     }
 }

@@ -68,7 +68,7 @@
                     @yield('superadmincontent')
                 @elseif(Session::get('user_role') == 'Admin')
                     @yield('admincontent')
-                @else 
+                @elseif(Session::get('user_role') == 'Normal') 
                 @yield('content')
                 @include('include.menubar')
             @endif

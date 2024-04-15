@@ -32,7 +32,8 @@
 
 <div class="tab-content">
   <div class="tab-pane active" id="users">
-    <table class="table table-bordered">
+    <table class="userstable table-bordered">
+      <h1> User Data </h1>
       <thead>
         <tr>
           <th scope="col">#</th>
@@ -49,6 +50,35 @@
           <td>{{$userdata->email}}</td>
           <td>Admin</td>
         </tr>
+      @endisset
+      </tbody>
+    </table>
+    <table class="servicestable table-bordered">
+    <h1> User Services Data </h1>
+      <thead>
+        <tr>
+          <th scope="col">#</th>
+          <th scope="col">Category Name</th>
+          <th scope="col">Service Name</th>
+          <th scope="col">Image</th>
+          <th scope="col">Rate</th>
+          <th scope="col">Zip</th>
+          <th scope="col">City</th>
+        </tr>
+      </thead>
+      <tbody>
+      @isset($availableservices)
+      @foreach($availableservices as $value)
+        <tr>
+          <th scope="row" value ="{{$value->id}}">1</th>
+          <td value ="{{$value->category_id}}">{{$value->category_name}}</td>
+          <td value ="{{$value->services_id}}">{{$value->service_name}}</td>
+          <td><img src="{{ url('storage/images/'.$value->image)}}" style="opacity: 50; width: 100%; height: 100px;" /></td>
+          <td>{{$value->rate}}</td>
+          <td>{{$value->zip}}</td>
+          <td>{{$value->city}}</td>
+        </tr>
+      @endforeach
       @endisset
       </tbody>
     </table>
@@ -77,7 +107,7 @@
         </select>
     </div>
 
-    <div id="weekday-container">
+    <!-- <div id="weekday-container">
       <label for="availability">Availability</label>
         <div>
             <input type="checkbox" id="monday" name="monday">
@@ -85,9 +115,9 @@
             <div class="show times"style="display:none;" id="mondaycheck" name="mondaycheck">
               <input type="checkbox" id="monday_morning" name="monday_morning" value ="1">
               <label for="monday-morning">Morning</label>
-              <input type="checkbox" id="monday_afternoon" name="monday_afternoon" value ="1">
+              <input type="checkbox" id="monday_afternoon" name="monday_afternoon" value ="2">
               <label for="monday-afternoon">Afternoon</label>
-              <input type="checkbox" id="monday_evening" name="monday_evening" value ="1">
+              <input type="checkbox" id="monday_evening" name="monday_evening" value ="3">
               <label for="monday-evening">Evening</label>
             </div>
         </div>
@@ -97,9 +127,9 @@
             <div class="show times" style="display:none;" id="tuesdaycheck" name="tuesdaycheck">
               <input type="checkbox" id="tuesday_morning" name="tuesday_morning" value ="1">
               <label for="tuesday-morning">Morning</label>
-              <input type="checkbox" id="tuesday_afternoon" name="tuesday_afternoon" value ="1">
+              <input type="checkbox" id="tuesday_afternoon" name="tuesday_afternoon" value ="2">
               <label for="tuesday-afternoon">Afternoon</label>
-              <input type="checkbox" id="tuesday_evening" name="tuesday_evening" value ="1">
+              <input type="checkbox" id="tuesday_evening" name="tuesday_evening" value ="3">
               <label for="tuesday-evening">Evening</label>
             </div>
         </div>
@@ -109,9 +139,9 @@
             <div class="show times" style="display:none;" id="wednesdaycheck" name="wednesdaycheck">
               <input type="checkbox" id="wednesday_morning" name="wednesday_morning" value ="1">
               <label for="wednesday-morning">Morning</label>
-              <input type="checkbox" id="wednesday_afternoon" name="wednesday_afternoon" value ="1">
+              <input type="checkbox" id="wednesday_afternoon" name="wednesday_afternoon" value ="2">
               <label for="wednesday-afternoon">Afternoon</label>
-              <input type="checkbox" id="wednesday_evening" name="wednesday_evening" value ="1">
+              <input type="checkbox" id="wednesday_evening" name="wednesday_evening" value ="3">
               <label for="wednesday-evening">Evening</label>
             </div>
         </div>
@@ -121,9 +151,9 @@
             <div class="show times" style="display:none;" id="thursdaycheck" name="thursdaycheck">
               <input type="checkbox" id="thursday_morning" name="thursday_morning" value ="1">
               <label for="thursday-morning">Morning</label>
-              <input type="checkbox" id="thursday_afternoon" name="thursday_afternoon" value ="1">
+              <input type="checkbox" id="thursday_afternoon" name="thursday_afternoon" value ="2">
               <label for="thursday-afternoon">Afternoon</label>
-              <input type="checkbox" id="thursday_evening" name="thursday_evening" value ="1">
+              <input type="checkbox" id="thursday_evening" name="thursday_evening" value ="3">
               <label for="thursday-evening">Evening</label>
             </div>
         </div>
@@ -133,13 +163,13 @@
             <div class="show times" style="display:none;" id="fridaycheck" name="fridaycheck">
               <input type="checkbox" id="friday_morning" name="friday_morning" value ="1">
               <label for="friday-morning">Morning</label>
-              <input type="checkbox" id="friday_afternoon" name="friday_afternoon" value ="1">
+              <input type="checkbox" id="friday_afternoon" name="friday_afternoon" value ="2">
               <label for="friday-afternoon">Afternoon</label>
-              <input type="checkbox" id="friday_evening" name="friday_evening" value ="1">
+              <input type="checkbox" id="friday_evening" name="friday_evening" value ="3">
               <label for="friday-evening">Evening</label>
             </div>
         </div>
-    </div>
+    </div> -->
 
     <div>
       <label for="image" class="form-label">Choose an Image</label>
@@ -203,7 +233,8 @@
 
             if (response.tabid == 'users') {
               //console.log(response);
-              $('#users .table .tbody').append(response.userdata);
+              $('#users .userstable .tbody').append(response.userdata);
+              $('#users .servicestable .tbody').append(response.userdata);
 
             } else if (response.tabid == 'providerservices') {
               var dropdown = $('#category_id');
@@ -281,41 +312,41 @@
         reader.readAsDataURL(file);
     });
 
-    $('#monday:checkbox').change(function(event) {
-      if($(this).is(":checked")){  //Return true/false 
-            $('#mondaycheck').fadeIn('fast');
-      }else{
-            $('#mondaycheck').fadeOut('fast'); 
-      }
-    });
-    $('#tuesday:checkbox').change(function(event) {
-      if($(this).is(":checked")){  //Return true/false 
-            $('#tuesdaycheck').fadeIn('fast');
-      }else{
-            $('#tuesdaycheck').fadeOut('fast'); 
-      }
-    });
-    $('#wednesday:checkbox').change(function(event) {
-      if($(this).is(":checked")){  //Return true/false 
-            $('#wednesdaycheck').fadeIn('fast');
-      }else{
-            $('#wednesdaycheck').fadeOut('fast'); 
-      }
-    });
-    $('#thursday:checkbox').change(function(event) {
-      if($(this).is(":checked")){  //Return true/false 
-            $('#thursdaycheck').fadeIn('fast');
-      }else{
-            $('#thursdaycheck').fadeOut('fast'); 
-      }
-    });
-    $('#friday:checkbox').change(function(event) {
-      if($(this).is(":checked")){  //Return true/false 
-            $('#fridaycheck').fadeIn('fast');
-      }else{
-            $('#fridaycheck').fadeOut('fast'); 
-      }
-    });
+    // $('#monday:checkbox').change(function(event) {
+    //   if($(this).is(":checked")){  //Return true/false 
+    //         $('#mondaycheck').fadeIn('fast');
+    //   }else{
+    //         $('#mondaycheck').fadeOut('fast'); 
+    //   }
+    // });
+    // $('#tuesday:checkbox').change(function(event) {
+    //   if($(this).is(":checked")){  //Return true/false 
+    //         $('#tuesdaycheck').fadeIn('fast');
+    //   }else{
+    //         $('#tuesdaycheck').fadeOut('fast'); 
+    //   }
+    // });
+    // $('#wednesday:checkbox').change(function(event) {
+    //   if($(this).is(":checked")){  //Return true/false 
+    //         $('#wednesdaycheck').fadeIn('fast');
+    //   }else{
+    //         $('#wednesdaycheck').fadeOut('fast'); 
+    //   }
+    // });
+    // $('#thursday:checkbox').change(function(event) {
+    //   if($(this).is(":checked")){  //Return true/false 
+    //         $('#thursdaycheck').fadeIn('fast');
+    //   }else{
+    //         $('#thursdaycheck').fadeOut('fast'); 
+    //   }
+    // });
+    // $('#friday:checkbox').change(function(event) {
+    //   if($(this).is(":checked")){  //Return true/false 
+    //         $('#fridaycheck').fadeIn('fast');
+    //   }else{
+    //         $('#fridaycheck').fadeOut('fast'); 
+    //   }
+    // });
 });
 
 </script>
