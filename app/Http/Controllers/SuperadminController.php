@@ -213,7 +213,7 @@ class SuperadminController extends Controller
         ]);      
 
         $value = Session::get('user_id');
-        $tabid = 'addservices';
+        $tabid = $request->addservices;
         // print($value);
         // exit;
         $user = User::where('id', $value)->first();
@@ -227,7 +227,7 @@ class SuperadminController extends Controller
         $request->session()->put('user_role', $role->rolename);
 
         $categories = Categories::all();
-        return view('dashboard.admindashboard',['tabid'=> $tabid, 'categories' => $categories]);
+        return response()->json(['success' => true, 'activateTab' => 'addservices', 'categories' => $categories]);
     }
 
     public function fetchServices()
@@ -241,4 +241,16 @@ class SuperadminController extends Controller
     $categories = Categories::all();
     return response()->json(['categories' => $categories]);
     }
+
+    public function deleteService(Request $request)
+    {
+        $service = Services::find($request->id);
+        if ($service) {
+            $service->delete();
+            return response()->json(['success' => true]);
+        } else {
+            return response()->json(['success' => false, 'error' => 'Service not found'], 404);
+        }
+    }
+    
 }
