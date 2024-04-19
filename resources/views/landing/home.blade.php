@@ -1,0 +1,185 @@
+@extends('layouts.app')
+
+@section('content')
+@if (session('error'))
+  <div class="alert alert-danger" role="alert">
+    <p> {{session('error')}} </p>
+  </div>
+@endif
+@if(Session::has('user_id'))
+<div class="info-container">
+  <h2>Provide Services!!</h2>
+  <p>Subscribe to our website if you provide services of any kind!!</p>
+  <p>Get access to 1000s of clients from our website!! Expand your Services!!</p>
+  <p>Subscription Rate of $50 per month!!  </p>
+  {!!Form::open(['method'=>'POST','url'=>'/subscribe','class'=>'form-inline'])!!}
+    @csrf
+    <input type="hidden" class="form-control" id="subscribe" name="subscribe" value="{{ Session::get('user_id')}}">
+    <select name='months' id ='months' class="form-select form-select-lg mb-3" aria-label=".form-select-lg example">
+        <option selected>Select Subscription Period</option>
+        <option id='months' name='months' value="1">1 Month</option>
+        <option id='months' name='months' value="2">2 Months</option>
+        <option id='months' name='months' value="3">3 Months</option>
+        <option id='months' name='months' value="5">5 Months</option>
+        <option id='months' name='months' value="6">6 Months</option>
+        <option id='months' name='months' value="9">9 Months</option>
+        <option id='months' name='months' value="12">12 Months</option>
+    </select>
+  <button id="subscribe">Subscribe</button>
+  {!!Form::close() !!}
+</div>
+@endif
+
+<header class="bg-dark py-5">
+    <div class="container px-4 px-lg-5 my-5">
+        <div class="text-center text-white">
+            <h1 class="display-4 fw-bolder">Find The Services You Need</h1>
+        </div>
+    </div>
+</header>
+<section class="py-5">
+    <div class="container px-4 px-lg-5 mt-5">
+        <div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center">
+          @isset($availableservices)
+          @foreach($availableservices as $value)
+            <div class="col mb-5">
+                <div class="card h-100">
+                    <!-- Product image-->
+                    <img class="card-img-top" src="{{ url('storage/images/'.$value->image)}}"/>
+                    <!-- Product details-->
+                    <div class="card-body p-4">
+                        <div class="text-center">
+                            <h4 class="fw-bolder">{{$value->category_name}}</h4>
+                            <!-- Product name-->
+                            <h5 class="fw-bolder">{{$value->service_name}}</h5>
+                              <!-- Product reviews-->
+                            <div class="d-flex justify-content-center small text-warning mb-2">
+                              <div class="bi-star-fill"></div>
+                              <div class="bi-star-fill"></div>
+                              <div class="bi-star-fill"></div>
+                              <div class="bi-star-fill"></div>
+                              <div class="bi-star-fill"></div>
+                            </div>
+                            <!-- Product price-->
+                            ${{$value->rate}}
+                            <p>{{$value->zip}}</p>
+                            <p>{{$value->city}}</p>
+                        </div>
+                    </div>
+                    <!-- Product actions-->
+                    <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
+                        <div class="text-center"><a class="btn btn-outline-dark mt-auto btn-view" href="#viewdetails" data-service-id="{{$value->id}}">View Details</a></div>
+                    </div>
+                </div>
+            </div>
+          @endforeach
+          @endisset
+        </div>
+    </div>
+</section>
+
+
+<!-- Modal -->
+<div class="modal fade" id="viewServiceModal" tabindex="-1" aria-labelledby="viewServiceModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="viewServiceModalLabel">Book Service</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <!-- Form starts here -->
+        {!!Form::open(['method'=>'POST','url'=>'/requestavailableservice', 'id'=>'viewServiceModal'])!!}
+        @csrf
+          <input type="hidden" class="form-control" id="availability_id" name="availability_id" value="" >
+          <div class="mb-3">
+            <label for="category_name" class="form-label">Category</label>
+            <input type="text" class="form-control" id="category_name" name="category_name" value="" readOnly={true}>
+          </div>
+          <div class="mb-3">
+            <label for="service_name" class="form-label">Service Name</label>
+            <input type="text" class="form-control" id="service_name" name="service_name" value="" readOnly={true}>
+          </div>
+          <div class="mb-3">
+            <label for="description" class="form-label">Description</label>
+            <textarea class="form-control" id="description" name="description" value="" readOnly={true}></textarea>
+          </div>
+          <div class="mb-3">
+            <label for="rate" class="form-label">Rate : $</label>
+            <input type="number" class="form-control" id="rate" name="rate" value="" readOnly={true}>
+          </div>
+          <div class="mb-3">
+            <label for="zip" class="form-label">Zip</label>
+            <input type="number" class="form-control" id="zip" name="zip" value="" readOnly={true}>
+          </div>
+          <div class="mb-3">
+            <label for="city" class="form-label">City</label>
+            <input type="text" class="form-control" id="city" name="city" value="" readOnly={true}>
+          </div>
+          <div class="mb-3">
+          <label for="datetimepicker1">Select Date and Time</label>
+            <div class='input-group date' id='datetimepicker1'>
+                <input type='datetime-local' id="datetimepicker1" name="datetimepicker1" class="form-control datetimepicker1"/>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary">Submit Request</button>
+          {!!Form::close() !!}
+        <!-- Form ends here -->
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<script>
+$(document).ready(function() {
+      // Show Model to select the services and book appointment
+      $(document).on('click', '.btn-view', function() {
+        event.preventDefault();
+        var available_id = $(this).data('service-id');
+        var infoData = { available_id: available_id, _token: "{{ csrf_token() }}" };
+        $.ajax({
+            type: "POST",
+            url: '/getavailableservice',
+            data: infoData,
+          success: function(response) {
+            if (response.status === 'success') {
+
+              console.log(response.servicedata.id);
+
+              $('#availability_id').val(response.servicedata.id);
+              $('#category_name').val(response.servicedata.category_name);
+              $('#service_name').val(response.servicedata.service_name);
+              $('#description').val(response.servicedata.description);
+              $('#rate').val(response.servicedata.rate);
+              $('#zip').val(response.servicedata.zip);
+              $('#city').val(response.servicedata.city);
+
+            } else {
+                console.error('Error: ', response.message);
+                $('#viewServiceModal .modal-body').html('<p>Error loading service details.</p>');
+            }
+          },
+          error: function(xhr) {
+              console.error('Error: ', xhr.responseText);
+              $('#viewServiceModal .modal-body').html('<p>Error loading service details.</p>');
+          }
+        });
+
+        $('#viewServiceModal').modal('show');
+      });
+
+    // $('#viewdata').change(function(event) {
+    //   var id = $(this).val();
+    //   alert(id);
+    //   activateTab('addservices');
+    // });
+});
+
+
+</script>
+
+@endsection

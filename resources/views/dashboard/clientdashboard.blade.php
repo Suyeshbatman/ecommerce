@@ -32,7 +32,7 @@
 
 <div class="tab-content">
   <div class="tab-pane active" id="users">
-    <table class="userstable table-bordered">
+    <table class="userstable table-bordered" id="userstable">
       <h1> User Data </h1>
       <thead>
         <tr>
@@ -42,18 +42,21 @@
           <th scope="col">Handle</th>
         </tr>
       </thead>
-      <tbody>
       @isset($userdata)
+      <tbody>
         <tr>
           <th scope="row">1</th>
           <td>{{$userdata->name}}</td>
           <td>{{$userdata->email}}</td>
           <td>Admin</td>
         </tr>
+      </tbody>
       @endisset
+      <tbody class="tbody">
+            <!-- Table rows will be populated here dynamically -->
       </tbody>
     </table>
-    <table class="servicestable table-bordered">
+    <table class="servicestable table-bordered" id="servicestable">
     <h1> User Services Data </h1>
       <thead>
         <tr>
@@ -66,9 +69,10 @@
           <th scope="col">City</th>
         </tr>
       </thead>
-      <tbody>
+      
       @isset($availableservices)
       @foreach($availableservices as $value)
+      <tbody>
         <tr>
           <th scope="row" value ="{{$value->id}}">1</th>
           <td value ="{{$value->category_id}}">{{$value->category_name}}</td>
@@ -78,15 +82,19 @@
           <td>{{$value->zip}}</td>
           <td>{{$value->city}}</td>
         </tr>
+        </tbody>
       @endforeach
       @endisset
-      </tbody>
+      
     </table>
+    <tbody class="tbody">
+            <!-- Table rows will be populated here dynamically -->
+    </tbody>
   </div>
 
   <div class="tab-pane" id="providerservices">
     <h2>Add Service</h2>
-    {!!Form::open(['method'=>'POST','url'=>'/createavailableservices', 'enctype' => 'multipart/form-data'])!!}
+    {!!Form::open(['method'=>'POST','url'=>'/createavailableservices', 'id'=>'addservicesForm', 'enctype' => 'multipart/form-data'])!!}
     @csrf
       <!-- New Categories Dropdown -->
       <input type="hidden" class="form-control" id="providerservices" name="providerservices">
@@ -106,70 +114,6 @@
           <!-- Options will be populated here dynamically -->
         </select>
     </div>
-
-    <!-- <div id="weekday-container">
-      <label for="availability">Availability</label>
-        <div>
-            <input type="checkbox" id="monday" name="monday">
-            <label for="monday">Monday</label>
-            <div class="show times"style="display:none;" id="mondaycheck" name="mondaycheck">
-              <input type="checkbox" id="monday_morning" name="monday_morning" value ="1">
-              <label for="monday-morning">Morning</label>
-              <input type="checkbox" id="monday_afternoon" name="monday_afternoon" value ="2">
-              <label for="monday-afternoon">Afternoon</label>
-              <input type="checkbox" id="monday_evening" name="monday_evening" value ="3">
-              <label for="monday-evening">Evening</label>
-            </div>
-        </div>
-        <div>
-            <input type="checkbox" id="tuesday" name="tuesday">
-            <label for="tuesday">Tuesday</label>
-            <div class="show times" style="display:none;" id="tuesdaycheck" name="tuesdaycheck">
-              <input type="checkbox" id="tuesday_morning" name="tuesday_morning" value ="1">
-              <label for="tuesday-morning">Morning</label>
-              <input type="checkbox" id="tuesday_afternoon" name="tuesday_afternoon" value ="2">
-              <label for="tuesday-afternoon">Afternoon</label>
-              <input type="checkbox" id="tuesday_evening" name="tuesday_evening" value ="3">
-              <label for="tuesday-evening">Evening</label>
-            </div>
-        </div>
-        <div>
-            <input type="checkbox" id="wednesday" name="wednesday">
-            <label for="wednesday">Wednesday</label>
-            <div class="show times" style="display:none;" id="wednesdaycheck" name="wednesdaycheck">
-              <input type="checkbox" id="wednesday_morning" name="wednesday_morning" value ="1">
-              <label for="wednesday-morning">Morning</label>
-              <input type="checkbox" id="wednesday_afternoon" name="wednesday_afternoon" value ="2">
-              <label for="wednesday-afternoon">Afternoon</label>
-              <input type="checkbox" id="wednesday_evening" name="wednesday_evening" value ="3">
-              <label for="wednesday-evening">Evening</label>
-            </div>
-        </div>
-        <div>
-            <input type="checkbox" id="thursday" name="thursday">
-            <label for="thursday">Thursday</label>
-            <div class="show times" style="display:none;" id="thursdaycheck" name="thursdaycheck">
-              <input type="checkbox" id="thursday_morning" name="thursday_morning" value ="1">
-              <label for="thursday-morning">Morning</label>
-              <input type="checkbox" id="thursday_afternoon" name="thursday_afternoon" value ="2">
-              <label for="thursday-afternoon">Afternoon</label>
-              <input type="checkbox" id="thursday_evening" name="thursday_evening" value ="3">
-              <label for="thursday-evening">Evening</label>
-            </div>
-        </div>
-        <div>
-            <input type="checkbox" id="friday" name="friday">
-            <label for="friday">Friday</label>
-            <div class="show times" style="display:none;" id="fridaycheck" name="fridaycheck">
-              <input type="checkbox" id="friday_morning" name="friday_morning" value ="1">
-              <label for="friday-morning">Morning</label>
-              <input type="checkbox" id="friday_afternoon" name="friday_afternoon" value ="2">
-              <label for="friday-afternoon">Afternoon</label>
-              <input type="checkbox" id="friday_evening" name="friday_evening" value ="3">
-              <label for="friday-evening">Evening</label>
-            </div>
-        </div>
-    </div> -->
 
     <div>
       <label for="image" class="form-label">Choose an Image</label>
@@ -220,43 +164,100 @@
 
 
 <script>
- $(document).ready(function() {
-    $('.nav-link').click(function(event) {
-        event.preventDefault();
-        var tabid = $(this).attr('data-target').substring(1);
-        var url = '/clientdashboard';
-        var infoData = { tabid: tabid, _token: "{{csrf_token()}}" };
-        var clickedTabLink = $(this);
-        console.log(infoData);
-        $.post(url, infoData, function(response) {
-            $('.tab-pane.active .table .tbody').empty();
+$(document).ready(function() {
+  var imageurl = 'storage/images/';
 
-            if (response.tabid == 'users') {
-              //console.log(response);
-              $('#users .userstable .tbody').append(response.userdata);
-              $('#users .servicestable .tbody').append(response.userdata);
+  function activateTab(tabId) {
+        $('.tab-pane').removeClass('active');
+        $('#' + tabId).addClass('active');
+        $('.nav-link').removeClass('active');
+        $(`[data-target="#${tabId}"]`).addClass('active');
+    }
 
-            } else if (response.tabid == 'providerservices') {
+  $('.nav-link').click(function(event) {
+      event.preventDefault();
+      var tabid = $(this).attr('data-target').substring(1);
+      var infoData = { tabid: tabid, _token: "{{ csrf_token() }}" };
+
+      $.ajax({
+          type: "POST",
+          url: '/clientdashboard',
+          data: infoData,
+          success: function(response) {
+              activateTab(tabid);
+              if (tabid == 'users') {
+                  fetchAndPopulateData();
+              } else if (tabid == 'providerservices' && response.categories) {
+                  populatecategories(response.categories);
+              } else if (tabid == 'appointments') {
+                  //fetchAndPopulateCategories();
+              }
+          },
+          error: function(xhr) {
+              console.error('Error: ', xhr.responseText);
+          }
+      });
+  });
+
+
+  function populatecategories() {
+      $.ajax({
+          type: "GET",
+          url: "/fetch-categories",
+          success: function(response) {
               var dropdown = $('#category_id');
-                dropdown.empty();
-                dropdown.append('<option selected disabled value="">Choose a category</option>');
-                $.each(response.categories, function(index, category) {
-                    dropdown.append($('<option>', {
-                        value: category.id,
-                        text: category.category_name
-                    }));
-                });
- 
-            } else if (response.tabid == 'appointments') {
+              dropdown.empty();
+              dropdown.append('<option selected disabled value="">Choose a category</option>');
+              $.each(response.categories, function(index, category) {
+                  dropdown.append($('<option>', {
+                      value: category.id,
+                      text: category.category_name
+                  }));
+              });
+          },
+          error: function(xhr) {
+              console.error("Error fetching categories: ", xhr.responseText);
+          }
+      });
+  }
 
-            }
+
+    // $('.nav-link').click(function(event) {
+    //     event.preventDefault();
+    //     var tabid = $(this).attr('data-target').substring(1);
+    //     var url = '/clientdashboard';
+    //     var infoData = { tabid: tabid, _token: "{{csrf_token()}}" };
+    //     var clickedTabLink = $(this);
+    //     console.log(infoData);
+    //     $.post(url, infoData, function(response) {
+    //         $('.tab-pane.active .table .tbody').empty();
+
+    //         if (response.tabid == 'users') {
+    //           //console.log(response);
+    //           $('#users .userstable .tbody').append(response.userdata);
+    //           $('#users .servicestable .tbody').append(response.userdata);
+
+    //         } else if (response.tabid == 'providerservices') {
+    //           var dropdown = $('#category_id');
+    //             dropdown.empty();
+    //             dropdown.append('<option selected disabled value="">Choose a category</option>');
+    //             $.each(response.categories, function(index, category) {
+    //                 dropdown.append($('<option>', {
+    //                     value: category.id,
+    //                     text: category.category_name
+    //                 }));
+    //             });
+ 
+    //         } else if (response.tabid == 'appointments') {
+
+    //         }
             
-            $('.tab-pane').removeClass('active');
-            $('#' + response.tabid).addClass('active');
-            $('.nav-link').removeClass('active');
-            clickedTabLink.addClass('active');
-        })
-    });
+    //         $('.tab-pane').removeClass('active');
+    //         $('#' + response.tabid).addClass('active');
+    //         $('.nav-link').removeClass('active');
+    //         clickedTabLink.addClass('active');
+    //     })
+    // });
 
     $('#category_id').change(function(event) {
       event.preventDefault();
@@ -311,42 +312,134 @@
 
         reader.readAsDataURL(file);
     });
+    
+  function fetchAndPopulateData() {
+    $.ajax({
+      type: "GET",
+      url: "/fetchuserdata", // This URL should return both users and products data
+      success: function(response) {
+          if (response.userdata && response.userdata.length > 0) {
+            var tbody = $('#users .table tbody');
+            tbody.empty(); // Clear existing rows
+            $.each(response.userdata, function(index, user) {
+                var row = `<tr>
+                          <th scope="row">${index + 1}</th>
+                          <td>${user.name}</td>
+                          <td>
+                              <button type="button" class="btn btn-primary btn-edit" data-user-id="${user.id}">Edit</button>
+                          </td>
+                          </tr>`;
+                tbody.append(row);
+            });
+          }
 
-    // $('#monday:checkbox').change(function(event) {
-    //   if($(this).is(":checked")){  //Return true/false 
-    //         $('#mondaycheck').fadeIn('fast');
-    //   }else{
-    //         $('#mondaycheck').fadeOut('fast'); 
-    //   }
-    // });
-    // $('#tuesday:checkbox').change(function(event) {
-    //   if($(this).is(":checked")){  //Return true/false 
-    //         $('#tuesdaycheck').fadeIn('fast');
-    //   }else{
-    //         $('#tuesdaycheck').fadeOut('fast'); 
-    //   }
-    // });
-    // $('#wednesday:checkbox').change(function(event) {
-    //   if($(this).is(":checked")){  //Return true/false 
-    //         $('#wednesdaycheck').fadeIn('fast');
-    //   }else{
-    //         $('#wednesdaycheck').fadeOut('fast'); 
-    //   }
-    // });
-    // $('#thursday:checkbox').change(function(event) {
-    //   if($(this).is(":checked")){  //Return true/false 
-    //         $('#thursdaycheck').fadeIn('fast');
-    //   }else{
-    //         $('#thursdaycheck').fadeOut('fast'); 
-    //   }
-    // });
-    // $('#friday:checkbox').change(function(event) {
-    //   if($(this).is(":checked")){  //Return true/false 
-    //         $('#fridaycheck').fadeIn('fast');
-    //   }else{
-    //         $('#fridaycheck').fadeOut('fast'); 
-    //   }
-    // });
+          if (response.availableservices && response.availableservices.length > 0) {
+            var tbody = $('#services .table tbody');
+            tbody.empty(); // Clear existing rows
+            $.each(response.availableservices, function(index, addedservices) {
+              var imageUrl = imageurl + addedservices.image; 
+                var row = `<tr>
+                    <th scope="row">${index + 1}</th>
+                    <td value ="${addedservices.category_id}">${addedservices.category_name}</td>
+                    <td value ="${addedservices.services_id}">${addedservices.service_name}</td>
+                    <td><img src="${imageUrl}" style="opacity: 50; width: 100%; height: 100px;" /></td>
+                    <td>{{$value->rate}}</td>
+                    <td>{{$value->zip}}</td>
+                    <td>{{$value->city}}</td>
+                    <td>
+                        <button type="button" class="btn btn-primary btn-edit" data-availability-id="${addedservices.id}">Edit</button>
+                    </td>
+                </tr>`;
+                tbody.append(row);
+            });
+          } 
+          activateTab('users');
+      },
+      error: function(xhr) {
+          console.error("Error fetching data: ", xhr.responseText);
+      }
+    });
+  }
+
+  // function fetchAndPopulateUsers() {
+  //   $.ajax({
+  //       type: "GET",
+  //       url: "/path-to-fetch-users",
+  //       success: function(response) {
+  //           var usersHtml = "";
+  //           response.users.forEach(function(user) {
+  //               usersHtml += `<tr><td>${user.name}</td><td>${user.email}</td></tr>`; // Assuming you are populating a table
+  //           });
+  //           $('#usersTableBody').html(usersHtml); // Assuming 'usersTableBody' is the ID of the tbody element in your users table
+  //       },
+  //       error: function(xhr) {
+  //           console.error("Error fetching users: ", xhr.responseText);
+  //       }
+  //   });
+  // }
+
+  // function fetchAndPopulateProducts() {
+  //   $.ajax({
+  //       type: "GET",
+  //       url: "/path-to-fetch-products",
+  //       success: function(response) {
+  //           var productsHtml = "";
+  //           response.products.forEach(function(product) {
+  //               productsHtml += `<tr><td>${product.name}</td><td>${product.description}</td><td>${product.price}</td></tr>`; // Modify according to your product attributes
+  //           });
+  //           $('#productsTableBody').html(productsHtml); // Assuming 'productsTableBody' is the ID of the tbody element in your products table
+  //       },
+  //       error: function(xhr) {
+  //           console.error("Error fetching products: ", xhr.responseText);
+  //       }
+  //   });
+  // }
+
+  $('#addservicesForm').submit(function(event) {
+      event.preventDefault();
+      var formData = new FormData(this);
+
+      $.ajax({
+          type: "POST",
+          url: $(this).attr('action'),
+          data: formData,
+          processData: false,  // tell jQuery not to process the data
+          contentType: false,  // tell jQuery not to set contentType
+          headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+          success: function(response) {
+            if(response.success){
+              Toastify({
+                text: response.message || "Service added successfully!",
+                duration: 3000,
+                close: true,
+                gravity: "top",
+                position: "right",
+                backgroundColor: "#4CAF50",
+              }).showToast();
+                  fetchAndPopulateData(); // Fetch and populate users
+                  activateTab('users');
+                  
+            }else if(response.error){
+              Toastify({
+                text: response.message || "Failed to add service. Service already exists. Please try again.",
+                duration: 3000,
+                close: true,
+                gravity: "top",
+                position: "right",
+                backgroundColor: "#FF0000",
+              }).showToast();
+                  activateTab('providerservices');
+                  populatecategories();
+                  $('#addserviceForm')[0].reset();
+            }
+            
+          },
+          error: function(xhr) {
+            console.error("Error fetching categories: ", xhr.responseText);
+          }
+      });
+  });
+
 });
 
 </script>

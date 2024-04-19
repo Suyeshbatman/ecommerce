@@ -47,27 +47,23 @@ class ClientController extends Controller
     public function user(Request $request)
     {
         $tabid = 'users';
+
         $value = Session::get('user_id');
-        
         $userdata = User::where('id', $value)->first();
-
-        $request->session()->put('user_name', $userdata->name);
-        $request->session()->put('user_id', $userdata->id);
-
-        $userrole = UserRoles::where('userid',$userdata->id)->first();
-
-        $role = Roles::where('id',$userrole->roleid)->first();
-        $request->session()->put('user_role', $role->rolename);
+        $availableservices = DB::table('available__services')
+                ->join('services', 'available__services.services_id', '=', 'services.id')
+                ->join('categories', 'available__services.category_id', '=', 'categories.id')
+                ->where('user_id', $value)
+                ->select('available__services.id','available__services.category_id','categories.category_name', 'available__services.services_id','services.service_name', 'services.description', 'available__services.image', 'available__services.rate', 'available__services.zip','available__services.city')
+                ->get();
         
-        return response()->json(['userdata' => $userdata, 'tabid' => $tabid]);    
+        return response()->json(['userdata' => $userdata,'availableservices'=>$availableservices,'tabid' => $tabid]);    
         
     }
 
     public function providerservices(Request $request)
     {
         $request = request();
-        // print($request);
-        // exit;
             $tabid = $request->tabid;
             $value = Session::get('user_id');
             // print($value);
@@ -83,8 +79,6 @@ class ClientController extends Controller
             $request->session()->put('user_role', $role->rolename);
             
             $categories = Categories::all(); 
-            // print($categories);
-            // exit;
             
             return response()->json(['tabid' => $tabid, 'categories' => $categories]);         
         
@@ -142,15 +136,6 @@ class ClientController extends Controller
     {
         $catid = $request->catid;
         $value = Session::get('user_id');
-        $user = User::where('id', $value)->first();
-
-        $request->session()->put('user_name', $user->name);
-        $request->session()->put('user_id', $user->id);
-        //$tab = $request->input('tab', 'revenue');
-        $userrole = UserRoles::where('userid',$user->id)->first();
-
-        $role = Roles::where('id',$userrole->roleid)->first();
-        $request->session()->put('user_role', $role->rolename);
 
         $services = Services::where('category_id', $catid)->get();
         $tabid = 'providerservices';
@@ -172,8 +157,7 @@ class ClientController extends Controller
 
     public function createavailableservices(Request $request)
     {
-        // print($request->monday);
-        // exit;
+
         $value = Session::get('user_id');
         $request->validate([
             'category_id' => 'required',
@@ -185,38 +169,71 @@ class ClientController extends Controller
             'city' => 'required',
         ]);
 
+        $checkservice = Available_Services::where([
+            ['user_id', $value],
+            ['services_id', $request->services_id],
+        ])->first();
 
-        if($request->hasFile('image')){
-            $imagefile = $request->file('image');
-            $filename = time() . '.' . $imagefile->getClientOriginalExtension();
-            $imagefile->storeAs('public/images', $filename);
-            //$imagefile->move('images', $filename);
-            // $person->image = $filename;
-            // $person->save();
-        };
+        if(!empty($checkservice)){
+    
+            $categories = Categories::all(); 
+            //$request->session()->flash('error', 'You have already requested for the service on that particular date. Please change the date if you require the service on another date. Thank You!!');
 
-        $data = $request->all();
-        available_services::create([
-            'user_id' => $value,
-            'category_id' => $data['category_id'],
-            'services_id' => $data['services_id'],
-            'image' => $filename,
-            'difficulty' => $data['difficulty'],
-            'rate' => $data['rate'],
-            'zip' => $data['zip'],
-            'city' => $data['city'],
-        ]);
+            return response()->json(['error' => true, 'activateTab' => 'providerservices', 'categories' => $categories]);
 
-        
-        $userdata = User::where('id', $value)->first();
+        }else{
+
+            if($request->hasFile('image')){
+                $imagefile = $request->file('image');
+                $filename = time() . '.' . $imagefile->getClientOriginalExtension();
+                $imagefile->storeAs('public/images', $filename);
+                //$imagefile->move('images', $filename);
+                // $person->image = $filename;
+                // $person->save();
+            };
+    
+            $data = $request->all();
+            Available_Services::create([
+                'user_id' => $value,
+                'category_id' => $data['category_id'],
+                'services_id' => $data['services_id'],
+                'image' => $filename,
+                'difficulty' => $data['difficulty'],
+                'rate' => $data['rate'],
+                'zip' => $data['zip'],
+                'city' => $data['city'],
+            ]);
+    
+            
+            $userdata = User::where('id', $value)->first();
+            $availableservices = DB::table('available__services')
+                    ->join('services', 'available__services.services_id', '=', 'services.id')
+                    ->join('categories', 'available__services.category_id', '=', 'categories.id')
+                    ->where('user_id', $value)
+                    ->select('available__services.id','available__services.category_id','categories.category_name', 'available__services.services_id','services.service_name', 'services.description', 'available__services.image', 'available__services.rate', 'available__services.zip','available__services.city')
+                    ->get();
+    
+            //return view('dashboard.clientdashboard',['userdata'=>$userdata, 'availableservices'=>$availableservices]);
+
+            return response()->json(['success' => true, 'activateTab' => 'providerservices', 'userdata' => $userdata, 'availableservices' => $availableservices]);
+
+        }
+    }
+
+    public function fetchuserdata()
+    {
+        $tabid = 'users';
+
+        $value = Session::get('user_id');
+        $userdata = User::where('id', $value)->get();
         $availableservices = DB::table('available__services')
                 ->join('services', 'available__services.services_id', '=', 'services.id')
                 ->join('categories', 'available__services.category_id', '=', 'categories.id')
                 ->where('user_id', $value)
                 ->select('available__services.id','available__services.category_id','categories.category_name', 'available__services.services_id','services.service_name', 'services.description', 'available__services.image', 'available__services.rate', 'available__services.zip','available__services.city')
                 ->get();
-
-        return view('dashboard.clientdashboard',['userdata'=>$userdata, 'availableservices'=>$availableservices]);
-
+        
+        return response()->json(['userdata' => $userdata,'availableservices'=>$availableservices,'tabid' => $tabid]);    
+        
     }
 }
