@@ -40,7 +40,7 @@ Route::post('/createservices', 'SuperadminController@registerservices')->name('s
 Route::get('/fetch-services', 'SuperadminController@fetchServices')->name('superadmin.fetchservices');
 Route::get('/fetch-categories', 'SuperadminController@fetchCategories')->name('fetch.categories');
 Route::post('/delete-service', 'SuperadminController@deleteService')->name('delete-service');
-
+Route::post('/update-paid-status', [SuperadminController::class, 'updatePaidStatus'])->name('update.paid.status');
 
 //Client routes
 Route::post('/clientdashboard', 'ClientController@index')->name('client.index');

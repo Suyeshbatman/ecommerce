@@ -137,28 +137,34 @@ class SuperadminController extends Controller
     public function revenue(Request $request)
     {
         $request = request();
-        // print($request);
-        // exit;
-        $tabid = $request->tabid;
-        $value = Session::get('user_id');
-        // print($value);
-        // exit;
-        $user = User::where('id', $value)->first();
+    $tabid = $request->tabid;
+    $user = User::where('id', Session::get('user_id'))->first();
+    
+    $request->session()->put('user_name', $user->name);
+    $request->session()->put('user_id', $user->id);
 
-        $request->session()->put('user_name', $user->name);
-        $request->session()->put('user_id', $user->id);
-        //$tab = $request->input('tab', 'revenue');
-        $userrole = UserRoles::where('userid',$user->id)->first();
+    $userrole = UserRoles::where('userid', $user->id)->first();
+    $role = Roles::where('id', $userrole->roleid)->first();
+    $request->session()->put('user_role', $role->rolename);
 
-        $role = Roles::where('id',$userrole->roleid)->first();
-        $request->session()->put('user_role', $role->rolename);
+    // Fetch all records where 'paid' is 'Y'
+    $subscriptions = DB::table('subscriptions')
+                       ->join('users', 'subscriptions.user_id', '=', 'users.id')
+                       ->where('subscriptions.paid', '=', 'Y')
+                       ->select('users.name', 'users.email', 'subscriptions.request_interval', 'subscriptions.start_date', 'subscriptions.end_date')
+                       ->get();
 
-        $usedata = User::all();
+    $totalSubscribedUsers = $subscriptions->count();
+    $totalMonthsSubscribed = $subscriptions->sum('request_interval');
 
-        return response()->json(['usedata' => $usedata, 'tabid' => $tabid]);
-
-        //return view('dashboard.admindashboard',['usedata'=>$usedata,'tabid'=>$tabid]);
-        //return view('dashboard.admindashboard');                  
+    // Returning data as JSON
+    return response()->json([
+        'success' => true,
+        'tabid' => $tabid,
+        'totalSubscribedUsers' => $totalSubscribedUsers,
+        'totalMonthsSubscribed' => $totalMonthsSubscribed,
+        'subscribedUsers' => $subscriptions
+    ]);              
         
     }
 
@@ -252,5 +258,27 @@ class SuperadminController extends Controller
             return response()->json(['success' => false, 'error' => 'Service not found'], 404);
         }
     }
+
+    public function updatePaidStatus(Request $request)
+    {
+        $userId = $request->input('userId');
+        $subscription = DB::table('subscriptions')
+                            ->where('user_id', $userId)
+                            ->update(['paid' => 'Y']);
+
+        $role = DB::table('user_roles')
+                    ->where('userid', $userId)
+                    ->update(['roleid' => 2]);
+
+
+
+        if ($subscription) {
+            $users = User::all(); // Fetch updated list of users
+            return response()->json(['success' => true, 'message' => 'User status updated successfully.', 'users' => $users]);
+        } else {
+            return response()->json(['success' => false, 'message' => 'Failed to update subscription.']);
+        }
+     }
+     
     
 }
