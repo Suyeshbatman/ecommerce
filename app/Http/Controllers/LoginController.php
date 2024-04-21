@@ -280,7 +280,7 @@ class LoginController extends Controller
                         ->select('available__services.id','available__services.category_id','categories.category_name', 'available__services.services_id','services.service_name', 'services.description', 'available__services.image', 'available__services.rate', 'available__services.zip','available__services.city')
                         ->get();
         
-                return view('home',['userdata'=>$userdata, 'availableservices'=>$availableservices]);  
+                return view('landing.home',['userdata'=>$userdata, 'availableservices'=>$availableservices]);  
                 //return redirect(route('home'))->with("success", "Requested for Subscription!!!  We will contact you soon.");
                 }      
                 
