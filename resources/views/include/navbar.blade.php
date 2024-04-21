@@ -9,6 +9,7 @@
             <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4">
                 <!-- Intentionally left blank for Super Admins, or you can add admin specific links here -->
             </ul>
+            @if(Session::get('user_role') != 'Superadmin') <!-- Hide cart for Superadmins -->
             <form class="d-flex">
                 <button class="btn btn-outline-dark" type="submit">
                     <i class="bi-cart-fill me-1"></i>
@@ -16,30 +17,32 @@
                     <span class="badge bg-dark text-white ms-1 rounded-pill">0</span>
                 </button>
             </form>
-            @if(Session::has('user_role'))
-            User: 
-            {{ Session::get('user_role')}} :
             @endif
-            @if(Session::has('user_name'))
-            {{ Session::get('user_name')}}        
-                <a href="{{route('logout')}}">
-                    <button class="btn btn-outline-dark" >
-                        <!-- <i class="bi-cart-fill me-1"></i> -->
-                        Logout
-                    </button>
-                </a>
-            @else
+            <div class="user-info ms-3 pe-3" style="border-right: 2px solid #ddd;">
+                @if(Session::has('user_role'))
+                <span class="user-role" style="font-weight: bold; margin-right: 10px;">Role: {{ Session::get('user_role')}}</span>
+                @endif
+                @if(Session::has('user_name'))
+                <span class="user-name" style="font-weight: bold; color: #007bff;">{{ Session::get('user_name')}}</span>        
+                @endif
+            </div>
+            <a href="{{route('logout')}}" class="ms-3">
+                <button class="btn btn-outline-dark" >
+                    Logout
+                </button>
+            </a>
+            @unless(Session::has('user_name'))
                 <a href="{{route('login')}}">
                     <button class="btn btn-outline-dark">
                         Login
                     </button>
                 </a>
                 <a href="{{route('register')}}">
-                    <button class="btn btn-outline-dark" >
+                    <button class="btn btn-outline-dark">
                         Register
-                    </a>
-                @endif
-            </div>
+                    </button>
+                </a>
+            @endunless
         </div>
     </div>
 </nav>

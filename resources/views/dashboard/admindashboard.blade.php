@@ -31,63 +31,70 @@
 
 
 <div class="tab-content">
-  <div class="tab-pane active" id="users">
-    <table class="table table-bordered">
-      <thead>
+<div class="tab-pane active" id="users">
+        <!-- Table for Paid Subscribers (no changes needed here) -->
+        <table class="table table-bordered" id="paidSubscribersTable">
+    <thead style="background-color: #343a40; color: #ffffff;">
         <tr>
-          <th scope="col">#</th>
-          <th scope="col">First</th>
-          <th scope="col">Last</th>
-          <th scope="col">Handle</th>
+            <th scope="col">#</th>
+            <th scope="col">Username</th>
+            <th scope="col">Email</th>
+            <th scope="col">Role</th>
         </tr>
-      </thead>
-      <tbody>
-      @isset($paidsubscribers)
-      @foreach ($paidsubscribers as $value)
+    </thead>
+    <tbody style="background-color: #f8f9fa; color: #333333;">
+        @isset($paidsubscribers)
+        @foreach ($paidsubscribers as $value)
         <tr>
-          <th scope="row">1</th>
-          <td>{{$value->name}}</td>
-          <td>{{$value->email}}</td>
-          <td>Superadmin</td>
+            <th scope="row">{{ $loop->iteration }}</th>
+            <td>{{$value->name}}</td>
+            <td>{{$value->email}}</td>
+            <td>Admin</td>
         </tr>
-      @endforeach
-      @endisset
-      </tbody>
-    </table>
-    <table class="table table-bordered">
-      <thead>
+        @endforeach
+        @endisset
+    </tbody>
+</table>
+
+<!-- Table for Unpaid Subscribers -->
+<table class="table table-bordered" id="unpaidSubscribersTable">
+    <thead style="background-color: #343a40; color: #ffffff;">
         <tr>
-          <th scope="col">#</th>
-          <th scope="col">First</th>
-          <th scope="col">Last</th>
-          <th scope="col">Handle</th>
+            <th scope="col">#</th>
+            <th scope="col">Username</th>
+            <th scope="col">Email</th>
+            <th scope="col">Role</th>
+            <th scope="col">Action</th>
         </tr>
-      </thead>
-      <tbody>
-      @isset($unpaidsubscribers)
-      @foreach ($unpaidsubscribers as $value)
+    </thead>
+    <tbody style="background-color: #f8f9fa; color: #333333;">
+        @isset($unpaidsubscribers)
+        @foreach ($unpaidsubscribers as $value)
         <tr>
-          <th scope="row">1</th>
-          <td>{{$value->name}}</td>
-          <td>{{$value->email}}</td>
-          <td>Superadmin</td>
+            <th scope="row">{{$loop->iteration}}</th>
+            <td>{{$value->name}}</td>
+            <td>{{$value->email}}</td>
+            <td>Normal</td>
+            <td>
+                <button type="button" class="btn btn-primary btn-sm btn-add" data-user-id="{{$value->id}}">Add</button>
+            </td>
         </tr>
-      @endforeach
-      @endisset
-      </tbody>
-    </table>
-  </div>
+        @endforeach
+        @endisset
+    </tbody>
+</table>
+    </div>
 
   <div class="tab-pane" id="services">
     <table class="table table-bordered">
-        <thead>
+        <thead style="background-color: #343a40; color: #ffffff;">
             <tr>
                 <th scope="col">#</th>
                 <th scope="col">Service Name</th>
                 <th scope="col">Action</th>
             </tr>
         </thead>
-        <tbody class="tbody">
+        <tbody class="tbody" style="background-color: #f8f9fa; color: #333333;">
             <!-- Table rows will be populated here dynamically -->
         </tbody>
     </table>
@@ -98,56 +105,68 @@
   <input type="hidden" class="form-control" id="viewdata" value="{{$tabid}}" name="viewdata">
   @endisset
 
-  <h2>Add New Category</h2>
-  <input type="hidden" class="form-control" id="addservices" name="addcategotyForm">
-    {!!Form::open(['method'=>'POST','url'=>'/createcategory', 'id'=>'addcategoryForm'])!!}
-    @csrf
-
-      <div class="mb-3">
-        <label for="category_name" class="form-label">Category Name</label>
-        <input type="text" class="form-control" id="category_name" name="category_name" required>
-      </div>
-
-      <button type="submit" id="registercategory"class="btn btn-primary">Submit</button>
-    {!!Form::close() !!}
-
-  <h2>Add New Service</h2>
-  {!!Form::open(['method'=>'POST','url'=>'/createservices', 'id'=>'createServiceForm']) !!}
-  @csrf
-     <input type="hidden" class="form-control" id="addservices" name="addservices">
-
-  <div class="mb-3">
-      <label for="category_id" class="form-label">Category</label>
-      <select class="form-control" id="category_id" name="category_id" required>
-        <option selected disabled value="">Choose a category</option>
-        <!-- Options will be populated here dynamically -->
-      </select>
+  <div class="card" style="border: 1px solid #ccc;">
+    <div class="card-header" style="background-color: #000; color: #fff;">
+      <h2>Add New Category</h2>
     </div>
-
-    <div class="mb-3">
-      <label for="service_name" class="form-label">Service Name</label>
-      <input type="text" class="form-control" id="service_name" name="service_name" required>
+    <div class="card-body" style="background-color: #e9ecef; color: #000;">
+      {!! Form::open(['method'=>'POST','url'=>'/createcategory', 'id'=>'addcategoryForm']) !!}
+      @csrf
+        <div style="margin-bottom: 1rem;">
+          <label for="category_name" style="display: block; color: #000;">Category Name</label>
+          <input type="text" class="form-control" id="category_name" name="category_name" required>
+        </div>
+        <div style="margin-bottom: 1rem;">
+          <button type="submit" id="registercategory" class="btn btn-primary">Submit</button>
+        </div>
+      {!! Form::close() !!}
     </div>
+  </div>
 
-    <div class="mb-3">
-      <label for="description" class="form-label">Description</label>
-      <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
+  <div class="card mt-4" style="border: 1px solid #ccc;">
+    <div class="card-header" style="background-color: #000; color: #fff;">
+      <h2>Add New Service</h2>
     </div>
+    <div class="card-body" style="background-color: #e9ecef; color: #000;">
+      {!! Form::open(['method'=>'POST','url'=>'/createservices', 'id'=>'createServiceForm']) !!}
+      @csrf
+        <div style="margin-bottom: 1rem;">
+          <label for="category_id" style="display: block; color: #000;">Category</label>
+          <select class="form-control" id="category_id" name="category_id" required>
+            <option selected disabled value="">Choose a category</option>
+            <!-- Options will be dynamically populated -->
+          </select>
+        </div>
 
-    <div class="mb-3">
-      <label for="difficulty" class="form-label">Difficulty</label>
-      <input type="number" class="form-control" id="difficulty" name="difficulty" min="1" step="1" required>
+        <div style="margin-bottom: 1rem;">
+          <label for="service_name" style="display: block; color: #000;">Service Name</label>
+          <input type="text" class="form-control" id="service_name" name="service_name" required>
+        </div>
+
+        <div style="margin-bottom: 1rem;">
+          <label for="description" style="display: block; color: #000;">Description</label>
+          <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
+        </div>
+
+        <div style="margin-bottom: 1rem;">
+          <label for="difficulty" style="display: block; color: #000;">Difficulty</label>
+          <input type="number" class="form-control" id="difficulty" name="difficulty" min="1" step="1" required>
+        </div>
+
+        <div style="margin-bottom: 1rem;">
+          <button type="submit" class="btn btn-primary">Submit</button>
+        </div>
+      {!! Form::close() !!}
     </div>
-
-    <button type="submit" class="btn btn-primary">Submit</button>
-  {!!Form::close() !!}
+  </div>
 </div>
 
 
 
+
   <div class="tab-pane" id="revenue">
-    ghasfghfasdjkgsbdfjkgsdjkfsdjkfsghdfasgjhd
   </div>
+  
 </div>
 
 <!-- Modal -->
@@ -196,6 +215,7 @@
 
 <script>
 $(document).ready(function() {
+    var categoriesCache;
     // Function to populate the services table
     function populateServicesTable(services) {
         var tbody = $('#services .table tbody');
@@ -212,6 +232,56 @@ $(document).ready(function() {
             tbody.append(row);
         });
     }
+
+    function fetchCategories() {
+        if (categoriesCache) {
+            return Promise.resolve(categoriesCache);
+        } else {
+            return $.ajax({
+                type: "GET",
+                url: "/fetch-categories",
+                success: function(response) {
+                    categoriesCache = response.categories;  // Cache the categories
+                    return response.categories;
+                },
+                error: function(xhr) {
+                    console.error("Error fetching categories: ", xhr.responseText);
+                    return [];
+                }
+            });
+        }
+    }
+
+    function populateCategoryDropdown(categories) {
+        var dropdown = $('#editCategoryId');
+        dropdown.empty();
+        dropdown.append('<option selected disabled value="">Choose a category</option>');
+        $.each(categories, function(index, category) {
+            dropdown.append($('<option>', {
+                value: category.id,
+                text: category.category_name
+            }));
+        });
+    }
+
+    // Populate categories when the modal is about to be shown
+    $('#editServiceModal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget); // Button that triggered the modal
+        var serviceId = button.data('service-id'); // Extract info from data-* attributes
+        var serviceName = button.data('service-name'); // Assuming you have service name in data attribute
+        var serviceDescription = button.data('description'); // Assuming description data
+        var serviceDifficulty = button.data('difficulty'); // Assuming difficulty data
+
+        fetchCategories().then(function(categories) {
+            populateCategoryDropdown(categories);
+        });
+
+        // And set other form values
+        $('#editServiceForm').find('#editServiceName').val(serviceName);
+        $('#editServiceForm').find('#editServiceDescription').val(serviceDescription);
+        $('#editServiceForm').find('#editDifficulty').val(serviceDifficulty);
+        $('#editServiceForm').find('#editServiceId').val(serviceId); // Assuming you have a hidden field for serviceId
+    });
 
     // Function to activate a specific tab
     function activateTab(tabId) {
@@ -260,6 +330,8 @@ $(document).ready(function() {
                     populateServicesTable(response.services);
                 } else if (tabid == 'addservices') {
                     fetchAndPopulateCategories();
+                } else if (tabid == 'revenue') {
+                    populateRevenueTable(response);
                 }
             },
             error: function(xhr) {
@@ -317,6 +389,50 @@ $(document).ready(function() {
         });
     });
 
+    function populateRevenueTable(data) {
+        var monthly_fee = 20; // To change montly fee
+        var revenueTab = $('#revenue');
+        revenueTab.empty(); // Clear existing content
+
+        if (!data.success) {
+            revenueTab.html('<p>Error loading revenue data. Please try again.</p>');
+            return;
+        }
+
+        var html = `
+            <h2>Revenue Statistics</h2>
+            <p><strong>Total Subscribed Users:</strong> ${data.totalSubscribedUsers}</p>
+            <p><strong>Total Subscription Months:</strong> ${data.totalMonthsSubscribed}</p>
+            <p><strong>Total Revenue: $</strong> ${data.totalMonthsSubscribed * monthly_fee}</p>
+            <h3>Subscribed Users</h3>
+            <table class="table table-bordered">
+                <thead style="background-color: #343a40; color: #ffffff;">
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Username</th>
+                        <th scope="col">Email</th>
+                        <th scope="col">Months Subscribed</th>
+                        <th scope="col">Start Date</th>
+                        <th scope="col">End Date</th>
+                    </tr>
+                </thead>
+                <tbody style="background-color: #f8f9fa; color: #333333;">
+                    ${data.subscribedUsers.map((user, index) => `
+                        <tr>
+                            <td>${index + 1}</td>
+                            <td>${user.name}</td>
+                            <td>${user.email}</td>
+                            <td>${user.request_interval}</td>
+                            <td>${user.start_date}</td>
+                            <td>${user.end_date}</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        `;
+        revenueTab.html(html);
+    }
+
     // Function to fetch the updated list of services and populate the table
     function fetchAndUpdateServices() {
         $.ajax({
@@ -357,6 +473,84 @@ $(document).ready(function() {
         console.log("Edit service with ID:", serviceId);
         $('#editServiceModal').modal('show');
     });
+
+    $(document).on('click', '.btn-add', function() {
+    var addButton = $(this);
+    var userId = addButton.data('user-id');
+    
+    // Executing AJAX directly without confirmation prompt
+    $.ajax({
+        type: "POST",
+        url: "{{ route('update.paid.status') }}",
+        data: { userId: userId, _token: "{{ csrf_token() }}" },
+        success: function(response) {
+            console.log("Response received: ", response);
+            if(response.success) {
+                // Toastify success message
+                Toastify({
+                    text: "Subscription updated successfully! User is now a paid subscriber.",
+                    duration: 3000,
+                    close: true,
+                    gravity: "top", // `top` or `bottom`
+                    position: 'right', // `left`, `center` or `right`
+                    backgroundColor: "#4CAF50",
+                    className: "info",
+                }).showToast();
+
+                var row = addButton.closest('tr');
+
+                // Update the role to 'Admin'
+                row.find('td:eq(2)').text('Admin');
+
+                // Remove the 'Action' cell
+                row.find('td:last').remove();
+
+                // Append to the Paid Subscribers table
+                $('#paidSubscribersTable tbody').append(row.fadeIn("slow"));
+
+                // Update indices in the Paid Subscribers Table
+                $('#paidSubscribersTable tbody tr').each(function(index) {
+                    $(this).find('th').eq(0).text(index + 1);
+                });
+
+                // Update indices in the Unpaid Subscribers Table
+                $('#unpaidSubscribersTable tbody tr').each(function(index) {
+                    $(this).find('th').eq(0).text(index + 1);
+                });
+
+            } else {
+                // Toastify failure message
+                Toastify({
+                    text: "Failed to update subscription: " + response.message,
+                    duration: 3000,
+                    close: true,
+                    gravity: "top",
+                    position: 'right',
+                    backgroundColor: "#FF5733",
+                    className: "info",
+                }).showToast();
+            }
+        },
+        error: function(xhr) {
+            console.log("AJAX error: ", xhr.responseText);
+            // Toastify error message
+            Toastify({
+                text: "Failed to update subscription. Please try again.",
+                duration: 3000,
+                close: true,
+                gravity: "top",
+                position: 'right',
+                backgroundColor: "#FF5733",
+                className: "info",
+            }).showToast();
+        }
+    });
+});
+
+
+
+
+
 
     $('#viewdata').change(function(event) {
         var id = $(this).val();
