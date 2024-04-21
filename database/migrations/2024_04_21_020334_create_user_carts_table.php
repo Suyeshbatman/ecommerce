@@ -21,6 +21,7 @@ return new class extends Migration
             $table->String('accepted');
             $table->Time('jobstarttime');
             $table->Time('jobendtime');
+            $table->String('completed');
             $table->timestamps();
         });
     }

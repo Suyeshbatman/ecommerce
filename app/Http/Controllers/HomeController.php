@@ -103,6 +103,7 @@ class HomeController extends Controller
                 'accepted' => 'N',
                 'jobstarttime' => $time,
                 'jobendtime' => $time,
+                'completed' => 'N',
             ]);
     
             $cartdata = DB::table('user_carts')

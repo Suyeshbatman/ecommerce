@@ -31,24 +31,28 @@
 
 
 <div class="tab-content">
-  <div class="tab-pane active" id="users">
-    <table class="userstable table-bordered" id="userstable">
+  <div class="tab-pane active" id="users" style="width: 100%; margin: 20px auto; padding: 15px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
+    <table class="userstable table-bordered" id="userstable" style="width: 100%; border-collapse: collapse;">
       <h1> User Data </h1>
       <thead>
         <tr>
-          <th scope="col">#</th>
-          <th scope="col">First</th>
-          <th scope="col">Last</th>
-          <th scope="col">Handle</th>
+          <th scope="col" style="padding: 8px; border: 1px solid #ddd;">#</th>
+          <th scope="col" style="padding: 8px; border: 1px solid #ddd;">First</th>
+          <th scope="col" style="padding: 8px; border: 1px solid #ddd;">Last</th>
+          <th scope="col" style="padding: 8px; border: 1px solid #ddd;">Handle</th>
+          <th style="padding: 8px; border: 1px solid #ddd;">Actions</th>
         </tr>
       </thead>
       @isset($userdata)
       <tbody>
         <tr>
-          <th scope="row">1</th>
-          <td>{{$userdata->name}}</td>
-          <td>{{$userdata->email}}</td>
-          <td>Admin</td>
+          <th scope="row" style="padding: 8px; border: 1px solid #ddd;">1</th>
+          <td style="padding: 8px; border: 1px solid #ddd;">{{$userdata->name}}</td>
+          <td style="padding: 8px; border: 1px solid #ddd;">{{$userdata->email}}</td>
+          <td style="padding: 8px; border: 1px solid #ddd;">{{session('user_role')}}</td>
+          <td>
+              <button type="button" class="btn btn-primary btn-viewuserprofile" data-userprofile-id="{{$userdata->id}}" style="margin-right: 5px; padding: 5px 10px; background-color: #4CAF50; color: white; border: none; cursor: pointer;">Edit</button>
+          </td>
         </tr>
       </tbody>
       @endisset
@@ -56,37 +60,44 @@
             <!-- Table rows will be populated here dynamically -->
       </tbody>
     </table>
-    <table class="servicestable table-bordered" id="servicestable">
-    <h1> User Services Data </h1>
-      <thead>
-        <tr>
-          <th scope="col">#</th>
-          <th scope="col">Category Name</th>
-          <th scope="col">Service Name</th>
-          <th scope="col">Image</th>
-          <th scope="col">Rate</th>
-          <th scope="col">Zip</th>
-          <th scope="col">City</th>
-        </tr>
-      </thead>
-      
-      @isset($availableservices)
-      @foreach($availableservices as $value)
-      <tbody>
-        <tr>
-          <th scope="row" value ="{{$value->id}}">1</th>
-          <td value ="{{$value->category_id}}">{{$value->category_name}}</td>
-          <td value ="{{$value->services_id}}">{{$value->service_name}}</td>
-          <td><img src="{{ url('storage/images/'.$value->image)}}" style="opacity: 50; width: 100%; height: 100px;" /></td>
-          <td>{{$value->rate}}</td>
-          <td>{{$value->zip}}</td>
-          <td>{{$value->city}}</td>
-        </tr>
-        </tbody>
-      @endforeach
-      @endisset
-      
-    </table>
+    <div class="tab-pane active" id="services" style="width: 100%; margin: 20px auto; padding: 15px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
+      <table class="servicestable table-bordered" id="servicestable" style="width: 100%; border-collapse: collapse;">
+      <h1> User Services Data </h1>
+        <thead>
+          <tr>
+            <th scope="col" style="padding: 8px; border: 1px solid #ddd;">#</th>
+            <th scope="col" style="padding: 8px; border: 1px solid #ddd;">Category Name</th>
+            <th scope="col" style="padding: 8px; border: 1px solid #ddd;">Service Name</th>
+            <th scope="col" style="padding: 8px; border: 1px solid #ddd;">Image</th>
+            <th scope="col" style="padding: 8px; border: 1px solid #ddd;">Rate</th>
+            <th scope="col" style="padding: 8px; border: 1px solid #ddd;">Zip</th>
+            <th scope="col" style="padding: 8px; border: 1px solid #ddd;">City</th>
+            <th style="padding: 8px; border: 1px solid #ddd;">Actions</th>
+          </tr>
+        </thead>
+        
+        @isset($availableservices)
+        @foreach($availableservices as $key=>$value)
+        <tbody>
+          <tr>
+            <th scope="row" style="padding: 8px; border: 1px solid #ddd;">{{$key + 1}}</th>
+            <td style="padding: 8px; border: 1px solid #ddd;" value ="{{$value->category_id}}">{{$value->category_name}}</td>
+            <td style="padding: 8px; border: 1px solid #ddd;" value ="{{$value->services_id}}">{{$value->service_name}}</td>
+            <td><img src="{{ url('storage/images/'.$value->image)}}" style="opacity: 50; width: 100%; height: 100px;" /></td>
+            <td style="padding: 8px; border: 1px solid #ddd;">{{$value->rate}}</td>
+            <td style="padding: 8px; border: 1px solid #ddd;">{{$value->zip}}</td>
+            <td style="padding: 8px; border: 1px solid #ddd;">{{$value->city}}</td>
+            <td>
+                <button type="button" class="btn btn-primary btn-edituserservice" data-edituserservice-id="{{$value->id}}" style="margin-right: 5px; padding: 5px 10px; background-color: #4CAF50; color: white; border: none; cursor: pointer;">Edit</button>
+                <button type="button" class="btn btn-primary btn-deleteuserservice" data-deleteuserservice-id="{{$value->id}}" style="padding: 5px 10px; background-color: #f44336; color: white; border: none; cursor: pointer;">Delete</button>
+            </td>
+          </tr>
+          </tbody>
+        @endforeach
+        @endisset
+        
+      </table>
+    </div> 
     <tbody class="tbody">
             <!-- Table rows will be populated here dynamically -->
     </tbody>
@@ -152,8 +163,28 @@
       {!!Form::close() !!}
   </div>
 
-<div class="tab-pane" id="appointments">
-  appointments
+<div class="tab-pane" id="appointments" style="width: 100%; margin: 20px auto; padding: 15px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
+  <table class="table table-bordered" id="appointmentstable" style="width: 100%; border-collapse: collapse;">
+      <h1> Appointment Data </h1>
+      <thead>
+        <tr>
+          <th scope="col" style="padding: 8px; border: 1px solid #ddd;">#</th>
+          <th scope="col" style="padding: 8px; border: 1px solid #ddd;">Category Name</th>
+          <th scope="col" style="padding: 8px; border: 1px solid #ddd;">Service Name</th>
+          <th scope="col" style="padding: 8px; border: 1px solid #ddd;">User Name</th>
+          <th scope="col" style="padding: 8px; border: 1px solid #ddd;">Email</th>
+          <th scope="col" style="padding: 8px; border: 1px solid #ddd;">Rate</th>
+          <th scope="col" style="padding: 8px; border: 1px solid #ddd;">Requested Date</th>
+          <th scope="col" style="padding: 8px; border: 1px solid #ddd;">Requested Time</th>
+          <th scope="col" style="padding: 8px; border: 1px solid #ddd;">Accepted</th>
+          <th scope="col" style="padding: 8px; border: 1px solid #ddd;">Completed</th>
+          <th style="padding: 8px; border: 1px solid #ddd;">Actions</th>
+        </tr>
+      </thead>
+      <tbody class="tbody">
+            <!-- Table rows will be populated here dynamically -->
+      </tbody>
+  </table>
 </div>
 
 
@@ -162,6 +193,113 @@
   </div>
 </div>
 
+
+<!-- Modal to edit user profile-->
+<div class="modal fade" id="viewUserModal" tabindex="-1" aria-labelledby="viewUserModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="viewUserModalLabel">Edit Profile</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <!-- Form starts here -->
+        {!!Form::open(['method'=>'POST','url'=>'/edituserprofile', 'id'=>'editUserForm', 'enctype' => 'form-data'])!!}
+        @csrf
+          <input type="hidden" class="form-control" id="user_id" name="user_id" value="" >
+          <div class="mb-3">
+            <label for="first_name" class="form-label">First Name</label>
+            <input type="text" class="form-control" id="first_name" name="first_name" value="">
+          </div>
+          <!-- <div class="mb-3">
+            <label for="last_name" class="form-label">Last Name</label>
+            <input type="text" class="form-control" id="last_name" name="last_name" value="" readOnly={true}>
+          </div> -->
+          <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
+            <textarea class="form-control" id="email" name="email" value=""></textarea>
+          </div>
+          <!-- <div class="mb-3">
+            <label for="phone_number" class="form-label">Phone Number</label>
+            <input type="number" class="form-control" id="phone_number" name="phone_number" value="" readOnly={true}>
+          </div>
+          <div class="mb-3">
+            <label for="address" class="form-label">Address</label>
+            <input type="text" class="form-control" id="address" name="address" value="" readOnly={true}>
+          </div>
+          <div class="mb-3">
+            <label for="zip" class="form-label">Zip</label>
+            <input type="number" class="form-control" id="zip" name="zip" value="" readOnly={true}>
+          </div>
+          <div class="mb-3">
+            <label for="city" class="form-label">City</label>
+            <input type="text" class="form-control" id="city" name="city" value="" readOnly={true}>
+          </div> -->
+          <button type="submit" class="btn btn-primary">Edit Profile</button>
+          {!!Form::close() !!}
+        <!-- Form ends here -->
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Modal to edit services provided by user-->
+<div class="modal fade" id="viewUserserviceModal" tabindex="-1" aria-labelledby="viewUserserviceModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="viewUserserviceModalLabel">Edit Services</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <!-- Form starts here -->
+        {!!Form::open(['method'=>'POST','url'=>'/edituserservice', 'id'=>'editUserserviceForm', 'enctype' => 'multipart/form-data'])!!}
+        @csrf
+          <input type="hidden" class="form-control" id="availability_id" name="availability_id" value="" >
+          <div class="mb-3">
+            <label for="category_name" class="form-label">Category Name</label>
+            <input type="text" class="form-control" id="category_name" name="category_name" value="" readOnly={true}>
+          </div>
+          <div class="mb-3">
+            <label for="service_name" class="form-label">Service Name</label>
+            <input type="text" class="form-control" id="service_name" name="service_name" value="" readOnly={true}>
+          </div>
+          <div class="mb-3">
+            <label for="image" class="form-label">Change Image</label>
+            <div class="mb-4 d-flex justify-content-center">
+                <img id="imagepreview2" src="" alt="example placeholder" style="width: 300px;" />
+            </div>
+            <div class="d-flex justify-content-center">
+                <div data-mdb-button-init data-mdb-ripple-init class="btn btn-primary btn-rounded">
+                    <label class="form-label text-white m-1" for="image2">Choose file</label>
+                    <input type="file" class="form-control d-none" id="image2" name="image2" accept="image/*"/>
+                </div>
+            </div>
+          </div>
+          <div class="mb-3">
+            <label for="rate2" class="form-label">Rate</label>
+            <input type="number" class="form-control" id="rate2" name="rate2" value="">
+          </div>
+          <div class="mb-3">
+            <label for="zip2" class="form-label">Zip</label>
+            <input type="number" class="form-control" id="zip2" name="zip2" value="">
+          </div>
+          <div class="mb-3">
+            <label for="city2" class="form-label">City</label>
+            <input type="text" class="form-control" id="city2" name="city2" value="">
+          </div>
+          <button type="submit" class="btn btn-primary">Edit Service</button>
+          {!!Form::close() !!}
+        <!-- Form ends here -->
+      </div>
+    </div>
+  </div>
+</div>
 
 <script>
 $(document).ready(function() {
@@ -178,7 +316,6 @@ $(document).ready(function() {
       event.preventDefault();
       var tabid = $(this).attr('data-target').substring(1);
       var infoData = { tabid: tabid, _token: "{{ csrf_token() }}" };
-
       $.ajax({
           type: "POST",
           url: '/clientdashboard',
@@ -190,7 +327,7 @@ $(document).ready(function() {
               } else if (tabid == 'providerservices' && response.categories) {
                   populatecategories(response.categories);
               } else if (tabid == 'appointments') {
-                  //fetchAndPopulateCategories();
+                  fetchAndPopulateAppointments();
               }
           },
           error: function(xhr) {
@@ -222,96 +359,59 @@ $(document).ready(function() {
   }
 
 
-    // $('.nav-link').click(function(event) {
-    //     event.preventDefault();
-    //     var tabid = $(this).attr('data-target').substring(1);
-    //     var url = '/clientdashboard';
-    //     var infoData = { tabid: tabid, _token: "{{csrf_token()}}" };
-    //     var clickedTabLink = $(this);
-    //     console.log(infoData);
-    //     $.post(url, infoData, function(response) {
-    //         $('.tab-pane.active .table .tbody').empty();
-
-    //         if (response.tabid == 'users') {
-    //           //console.log(response);
-    //           $('#users .userstable .tbody').append(response.userdata);
-    //           $('#users .servicestable .tbody').append(response.userdata);
-
-    //         } else if (response.tabid == 'providerservices') {
-    //           var dropdown = $('#category_id');
-    //             dropdown.empty();
-    //             dropdown.append('<option selected disabled value="">Choose a category</option>');
-    //             $.each(response.categories, function(index, category) {
-    //                 dropdown.append($('<option>', {
-    //                     value: category.id,
-    //                     text: category.category_name
-    //                 }));
-    //             });
- 
-    //         } else if (response.tabid == 'appointments') {
-
-    //         }
-            
-    //         $('.tab-pane').removeClass('active');
-    //         $('#' + response.tabid).addClass('active');
-    //         $('.nav-link').removeClass('active');
-    //         clickedTabLink.addClass('active');
-    //     })
-    // });
-
-    $('#category_id').change(function(event) {
-      event.preventDefault();
-      var catid = $(this).val();
-      $('#serv').show('fast');
-      //alert(catid);
-      var url = '/getservices';
-      var infoData = { catid: catid, _token: "{{csrf_token()}}" };
-      $.post(url, infoData, function(response) {
-        console.log(response.services);
-          var dropdown = $('#services_id');
-          dropdown.empty();
-          dropdown.append('<option selected disabled value="">Choose a service</option>');
-          $.each(response.services, function(index, service) {
-              dropdown.append($('<option>', {
-                  value: service.id,
-                  text: service.service_name
-              }));
-          });
-
-      });
+  $('#category_id').change(function(event) {
+    event.preventDefault();
+    var catid = $(this).val();
+    $('#serv').show('fast');
+    //alert(catid);
+    var url = '/getservices';
+    var infoData = { catid: catid, _token: "{{csrf_token()}}" };
+    $.post(url, infoData, function(response) {
+      console.log(response.services);
+        var dropdown = $('#services_id');
+        dropdown.empty();
+        dropdown.append('<option selected disabled value="">Choose a service</option>');
+        $.each(response.services, function(index, service) {
+            dropdown.append($('<option>', {
+                value: service.id,
+                text: service.service_name
+            }));
+        });
 
     });
 
-    $('#services_id').change(function(event) {
-      event.preventDefault();
-      var servid = $(this).val();
-      var url = '/getdifficulty';
-      var infoData = { servid: servid, _token: "{{csrf_token()}}" };
-      $.post(url, infoData, function(response) {
-        //console.log(response.difficulty);
-        var insert = $('#difficulty');
-        insert.val(response.difficulty);
-      });
+  });
+
+  $('#services_id').change(function(event) {
+    event.preventDefault();
+    var servid = $(this).val();
+    var url = '/getdifficulty';
+    var infoData = { servid: servid, _token: "{{csrf_token()}}" };
+    $.post(url, infoData, function(response) {
+      //console.log(response.difficulty);
+      var insert = $('#difficulty');
+      insert.val(response.difficulty);
     });
+  });
 
 
-    document.getElementById('image').addEventListener('change', function(event) {
-            //alert("vayo");
-        var file = event.target.files[0];
-        var reader = new FileReader();
+  document.getElementById('image').addEventListener('change', function(event) {
+          //alert("vayo");
+      var file = event.target.files[0];
+      var reader = new FileReader();
 
-        reader.onload = function(e) {
-            var imagepreview = document.getElementById('imagepreview');
-            imagepreview.innerHTML = '';
-            var imgElement = document.createElement('img');
-            imgElement.src = e.target.result;
-            imgElement.style.maxWidth = '100%';
-            imgElement.style.maxHeight = '100%';
-            imagepreview.appendChild(imgElement);
-        };
+      reader.onload = function(e) {
+          var imagepreview = document.getElementById('imagepreview');
+          imagepreview.innerHTML = '';
+          var imgElement = document.createElement('img');
+          imgElement.src = e.target.result;
+          imgElement.style.maxWidth = '100%';
+          imgElement.style.maxHeight = '100%';
+          imagepreview.appendChild(imgElement);
+      };
 
-        reader.readAsDataURL(file);
-    });
+      reader.readAsDataURL(file);
+  });
     
   function fetchAndPopulateData() {
     $.ajax({
@@ -323,9 +423,9 @@ $(document).ready(function() {
             tbody.empty(); // Clear existing rows
             $.each(response.userdata, function(index, user) {
                 var row = `<tr>
-                          <th scope="row">${index + 1}</th>
-                          <td>${user.name}</td>
-                          <td>
+                          <th scope="row" style="padding: 8px; border: 1px solid #ddd;">${index + 1}</th>
+                          <td style="padding: 8px; border: 1px solid #ddd;">${user.name}</td>
+                          <td style="padding: 8px; border: 1px solid #ddd;">
                               <button type="button" class="btn btn-primary btn-edit" data-user-id="${user.id}">Edit</button>
                           </td>
                           </tr>`;
@@ -334,26 +434,25 @@ $(document).ready(function() {
           }
 
           if (response.availableservices && response.availableservices.length > 0) {
-            var tbody = $('#services .table tbody');
+            var tbody = $('#appointments .table tbody');
             tbody.empty(); // Clear existing rows
             $.each(response.availableservices, function(index, addedservices) {
               var imageUrl = imageurl + addedservices.image; 
                 var row = `<tr>
-                    <th scope="row">${index + 1}</th>
-                    <td value ="${addedservices.category_id}">${addedservices.category_name}</td>
-                    <td value ="${addedservices.services_id}">${addedservices.service_name}</td>
-                    <td><img src="${imageUrl}" style="opacity: 50; width: 100%; height: 100px;" /></td>
-                    <td>{{$value->rate}}</td>
-                    <td>{{$value->zip}}</td>
-                    <td>{{$value->city}}</td>
-                    <td>
+                    <th scope="row" style="padding: 8px; border: 1px solid #ddd;">${index + 1}</th>
+                    <td style="padding: 8px; border: 1px solid #ddd;" value ="${addedservices.category_id}">${addedservices.category_name}</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;" value ="${addedservices.services_id}">${addedservices.service_name}</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;"><img src="${imageUrl}" style="opacity: 50; width: 100%; height: 100px;" /></td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">${addedservices.rate}</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">${addedservices.zip}</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">${addedservices.city}</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">
                         <button type="button" class="btn btn-primary btn-edit" data-availability-id="${addedservices.id}">Edit</button>
                     </td>
                 </tr>`;
                 tbody.append(row);
             });
           } 
-          activateTab('users');
       },
       error: function(xhr) {
           console.error("Error fetching data: ", xhr.responseText);
@@ -361,39 +460,42 @@ $(document).ready(function() {
     });
   }
 
-  // function fetchAndPopulateUsers() {
-  //   $.ajax({
-  //       type: "GET",
-  //       url: "/path-to-fetch-users",
-  //       success: function(response) {
-  //           var usersHtml = "";
-  //           response.users.forEach(function(user) {
-  //               usersHtml += `<tr><td>${user.name}</td><td>${user.email}</td></tr>`; // Assuming you are populating a table
-  //           });
-  //           $('#usersTableBody').html(usersHtml); // Assuming 'usersTableBody' is the ID of the tbody element in your users table
-  //       },
-  //       error: function(xhr) {
-  //           console.error("Error fetching users: ", xhr.responseText);
-  //       }
-  //   });
-  // }
-
-  // function fetchAndPopulateProducts() {
-  //   $.ajax({
-  //       type: "GET",
-  //       url: "/path-to-fetch-products",
-  //       success: function(response) {
-  //           var productsHtml = "";
-  //           response.products.forEach(function(product) {
-  //               productsHtml += `<tr><td>${product.name}</td><td>${product.description}</td><td>${product.price}</td></tr>`; // Modify according to your product attributes
-  //           });
-  //           $('#productsTableBody').html(productsHtml); // Assuming 'productsTableBody' is the ID of the tbody element in your products table
-  //       },
-  //       error: function(xhr) {
-  //           console.error("Error fetching products: ", xhr.responseText);
-  //       }
-  //   });
-  // }
+  function fetchAndPopulateAppointments() {
+    $.ajax({
+      type: "GET",
+      url: "/fetchappointmentdata", // This URL should return both users and products data
+      success: function(response) {
+          if (response.combinedInfo && response.combinedInfo.length > 0) {
+            var tbody = $('#appointments .table tbody');
+            tbody.empty(); // Clear existing rows
+            $.each(response.combinedInfo, function(index, info) {
+                var row = `<tr>
+                    <th scope="row" style="padding: 8px; border: 1px solid #ddd;">${index + 1}</th>
+                    <td style="padding: 8px; border: 1px solid #ddd;" value ="${info.category_id}">${info.category_name}</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;" value ="${info.services_id}">${info.service_name}</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">${info.rate}</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">${info.user_name}</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">${info.user_email}</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">${info.requesteddate}</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">${info.requestedtime}</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">${info.accepted}</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">${info.completed}</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">
+                        <button type="button" class="btn btn-primary btn-success" data-usercart-id="${info.id}">Accept</button>
+                        <button type="button" class="btn btn-primary btn-danger" data-usercart-id="${info.id}">Reject</button>
+                        <button type="button" class="btn btn-primary btn-warning" data-usercart-id="${info.id}">Start Job</button>
+                        <button type="button" class="btn btn-primary btn-success" data-usercart-id="${info.id}">End Job</button>
+                    </td>
+                </tr>`;
+                tbody.append(row);
+            });
+          } 
+      },
+      error: function(xhr) {
+          console.error("Error fetching data: ", xhr.responseText);
+      }
+    });
+  }
 
   $('#addservicesForm').submit(function(event) {
       event.preventDefault();
@@ -439,6 +541,94 @@ $(document).ready(function() {
           }
       });
   });
+
+  $(document).on('click', '.btn-viewuserprofile', function() {
+    event.preventDefault();
+    var user_id = $(this).data('userprofile-id');
+    var uurl = '/getuserdata'
+    var infoData = { user_id: user_id, _token: "{{ csrf_token() }}" };
+    $.ajax({
+        type: "POST",
+        url: uurl,
+        data: infoData,
+      success: function(response) {
+        if (response.status === 'success') {
+
+          console.log(response.userdata.id);
+
+          $('#user_id').val(response.userdata.id);
+          $('#first_name').val(response.userdata.name);
+          $('#email').val(response.userdata.email);
+
+        } else {
+            console.error('Error: ', response.message);
+            $('#viewUserModal .modal-body').html('<p>Error loading service details.</p>');
+        }
+      },
+      error: function(xhr) {
+          console.error('Error: ', xhr.responseText);
+          $('#viewUserModal .modal-body').html('<p>Error loading service details.</p>');
+      }
+    });
+
+    $('#viewUserModal').modal('show');
+  });
+
+
+  $(document).on('click', '.btn-edituserservice', function() {
+    event.preventDefault();
+    var availability_id = $(this).data('edituserservice-id');
+    var surl = '/getservicedata'
+    var infoData = { availability_id: availability_id, _token: "{{ csrf_token() }}" };
+    $.ajax({
+        type: "POST",
+        url: surl,
+        data: infoData,
+      success: function(response) {
+        if (response.status === 'success') {
+
+          var imageUrl = imageurl + response.servicedata.image; 
+
+          $('#availability_id').val(response.servicedata.id);
+          $('#category_name').val(response.servicedata.category_name);
+          $('#service_name').val(response.servicedata.service_name);
+          $('#imagepreview2').attr('src', imageUrl);
+          $('#rate2').val(response.servicedata.rate);
+          $('#zip2').val(response.servicedata.zip);
+          $('#city2').val(response.servicedata.city);
+
+        } else {
+            console.error('Error: ', response.message);
+            $('#viewUserserviceModal .modal-body').html('<p>Error loading service details.</p>');
+        }
+      },
+      error: function(xhr) {
+          console.error('Error: ', xhr.responseText);
+          $('#viewUserserviceModal .modal-body').html('<p>Error loading service details.</p>');
+      }
+    });
+
+    $('#viewUserserviceModal').modal('show');
+  });
+
+  $(document).on('click', '.btn-deleteuserservice', function() {
+        var availabilityid = $(this).data('deleteuserservice-id');
+        if (confirm('Are you sure you want to delete this service?')) {
+            $.ajax({
+                type: "POST",
+                url: '/deleteuserservice',
+                data: { availabilityid: availabilityid, _token: "{{ csrf_token() }}" },
+                success: function(response) {
+                    alert('Service deleted successfully!');
+                    fetchAndPopulateData();
+                    activateTab('users');
+                },
+                error: function(xhr) {
+                    alert('Error deleting service: ' + xhr.responseText);
+                }
+            });
+        }
+    });
 
 });
 

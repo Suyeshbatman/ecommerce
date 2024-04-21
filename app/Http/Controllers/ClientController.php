@@ -13,6 +13,7 @@ use App\Models\Categories;
 use App\Models\Services;
 use App\Models\Available_Services;
 use App\Models\Subscriptions;
+use App\Models\UserCart;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Hash;
@@ -234,6 +235,231 @@ class ClientController extends Controller
                 ->get();
         
         return response()->json(['userdata' => $userdata,'availableservices'=>$availableservices,'tabid' => $tabid]);    
+        
+    }
+
+    public function getuserdata(Request $request)
+    {
+        $value = $request->user_id;
+        $userdata = User::where('id', $value)->first();
+        
+        if ($userdata) {
+            return response()->json([
+                'status' => 'success',
+                'userdata' => [
+                    'id' => $userdata->id,
+                    'name' => $userdata->name,
+                    'email' => $userdata->email,
+                ]
+            ]);
+        } else {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'User not found.'
+            ]);
+        }  
+        
+    }
+
+    public function edituserprofile(Request $request)
+    {
+        $value = $request->user_id;
+        //$userdata = User::where('id', $value)->first();
+
+        $request->validate([
+            'first_name' => 'required',
+            'email'    => 'required',
+        ]);
+
+        
+        $user = User::find($value);
+        $user->name = $request->first_name;
+        $user->email = $request->email;   
+        $data = $request->all();
+        $user->update($data);
+
+        $userdata = User::where('id', $value)->first();
+
+        $availableservices = DB::table('available__services')
+                ->join('services', 'available__services.services_id', '=', 'services.id')
+                ->join('categories', 'available__services.category_id', '=', 'categories.id')
+                ->where('user_id', $value)
+                ->select('available__services.id','available__services.category_id','categories.category_name', 'available__services.services_id','services.service_name', 'services.description', 'available__services.image', 'available__services.rate', 'available__services.zip','available__services.city')
+                ->get();
+        
+        return view('dashboard.clientdashboard',['userdata'=>$userdata, 'availableservices'=>$availableservices]);   
+        
+    }
+
+    public function getservicedata(Request $request)
+    {
+
+        $user = Session::get('user_id');
+
+        $value = $request->availability_id;
+        $servicedata = DB::table('available__services')
+                        ->join('services', 'available__services.services_id', '=', 'services.id')
+                        ->join('categories', 'available__services.category_id', '=', 'categories.id')
+                        ->where('available__services.id', $value)
+                        ->where('available__services.user_id', $user)
+                        ->select('available__services.id','available__services.category_id','categories.category_name', 'available__services.services_id','services.service_name', 'services.description', 'available__services.image', 'available__services.rate', 'available__services.zip','available__services.city')
+                        ->first();
+        
+        if ($servicedata) {
+            return response()->json([
+                'status' => 'success',
+                'servicedata' => [
+                    'id' => $servicedata->id,
+                    'category_name' => $servicedata->category_name,
+                    'service_name' => $servicedata->service_name,
+                    'image' => $servicedata->image,
+                    'rate' => $servicedata->rate,
+                    'zip' => $servicedata->zip,
+                    'city' => $servicedata->city,
+                ]
+            ]);
+        } else {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'User not found.'
+            ]);
+        }  
+        
+    }
+
+    public function edituserservice(Request $request)
+    {
+        $value = Session::get('user_id');
+
+        $request->validate([
+            'rate2' => 'required',
+            'zip2' => 'required',
+            'city2' => 'required',
+        ]);
+
+        // if($request->hasFile('image2')){
+        //     $imagefile = $request->file('image2');
+        //     $filename = time() . '.' . $imagefile->getClientOriginalExtension();
+        //     $imagefile->storeAs('public/images', $filename);
+        //     //$imagefile->move('images', $filename);
+        //     // $person->image = $filename;
+        //     // $person->save();
+        // };
+
+        
+        $service = Available_Services::find($request->availability_id);
+        //$service->image = $filename;
+        $service->rate = $request->rate2;   
+        $service->zip = $request->zip2; 
+        $service->city = $request->city2; 
+        $data = $request->all();
+        $service->update($data);
+
+        $userdata = User::where('id', $value)->first();
+
+        $availableservices = DB::table('available__services')
+                ->join('services', 'available__services.services_id', '=', 'services.id')
+                ->join('categories', 'available__services.category_id', '=', 'categories.id')
+                ->where('user_id', $value)
+                ->select('available__services.id','available__services.category_id','categories.category_name', 'available__services.services_id','services.service_name', 'services.description', 'available__services.image', 'available__services.rate', 'available__services.zip','available__services.city')
+                ->get();
+        
+        return view('dashboard.clientdashboard',['userdata'=>$userdata, 'availableservices'=>$availableservices]);   
+        
+    }
+
+    public function deleteuserService(Request $request)
+    {
+        $cartcheck = UserCart::where([
+            ['availability_id', $request->availabilityid],
+        ])
+        ->get();
+
+        if ($cartcheck->isNotEmpty()) {
+            // Check if any of the entries are not completed
+            $incompleteExists = $cartcheck->contains(function ($value) {
+                return $value->completed === 'N';
+            });
+        
+            if ($incompleteExists) {
+                // If any record has 'completed' as 'N', return an error response
+                return response()->json([
+                    'success' => false,
+                    'error' => 'Service requested has not been completed. Check Appointments tab for details.'
+                ], 404);
+            } else {
+                // If all records are 'completed' as 'Y', proceed to delete
+                DB::transaction(function () use ($request) {
+                    // Delete all UserCart entries
+                    UserCart::where('availability_id', $request->availabilityid)->delete();
+                    
+                    // Attempt to find and delete the service entry
+                    $deleteservice = Available_Services::find($request->availabilityid);
+                    if ($deleteservice) {
+                        $deleteservice->delete();
+                        return response()->json(['success' => true, 'message' => 'Service and associated cart data deleted successfully.']);
+                    } else {
+                        return response()->json(['success' => false, 'error' => 'Service not found.'], 404);
+                    }
+                });
+        
+                // Return success response outside of transaction for clarity
+                return response()->json(['success' => true, 'message' => 'Service and associated cart data deleted successfully.']);
+            }
+        } else {
+            // If there are no entries, respond accordingly
+            return response()->json([
+                'success' => false,
+                'error' => 'No service found to delete.'
+            ], 404);
+        }
+
+    }
+
+    public function fetchappointmentdata()
+    {
+        $tabid = 'users';
+
+        $value = Session::get('user_id');
+        //$userdata = User::where('id', $value)->get();
+        // $availableservices = DB::table('available__services')
+        //         ->join('services', 'available__services.services_id', '=', 'services.id')
+        //         ->join('categories', 'available__services.category_id', '=', 'categories.id')
+        //         ->where('user_id', $value)
+        //         ->select('available__services.id','available__services.category_id','categories.category_name', 'available__services.services_id','services.service_name', 'services.description', 'available__services.image', 'available__services.rate', 'available__services.zip','available__services.city')
+        //         ->get();
+        // $userinfo = DB::table('user_carts')
+        //         ->join('available__services', 'available__services.id', '=', 'user_carts.availability_id')
+        //         ->where('availability_id', $availableservices->id)
+        //         ->select('user_carts.normaluser_id')
+        //         ->get();
+
+
+        $combinedInfo = DB::table('available__services')
+        ->join('services', 'available__services.services_id', '=', 'services.id')
+        ->join('categories', 'available__services.category_id', '=', 'categories.id')
+        ->join('user_carts', 'available__services.id', '=', 'user_carts.availability_id')
+        ->leftJoin('users', 'user_carts.normaluser_id', '=', 'users.id')  // Assuming 'users' is the table name and 'id' is the key
+        ->where('available__services.user_id', $value)  // Assuming $value is your user_id variable
+        ->select(
+            'available__services.id as available_service_id',
+            'available__services.category_id',
+            'categories.category_name',
+            'available__services.services_id',
+            'services.service_name',
+            'available__services.rate',
+            'user_carts.id',
+            'user_carts.normaluser_id',
+            'user_carts.requesteddate',
+            'user_carts.requestedtime',
+            'user_carts.accepted',
+            'user_carts.completed',
+            'users.name as user_name',  
+            'users.email as user_email'  
+        )
+        ->get();
+
+        return response()->json(['success' => true, 'combinedInfo' => $combinedInfo]);   
         
     }
 }
