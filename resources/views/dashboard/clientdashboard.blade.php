@@ -188,9 +188,34 @@
 </div>
 
 
-  <div class="tab-pane" id="revenue">
-    ghasfghfasdjkgsbdfjkgsdjkfsdjkfsghdfasgjhd
-  </div>
+<div class="tab-pane" id="revenue" style="width: 100%; margin: 20px auto; padding: 15px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
+  <table class="table table-bordered" id="revenuetable" style="width: 100%; border-collapse: collapse;">
+      <h1> Appointment Data </h1>
+      <thead>
+        <tr>
+          <th scope="col" style="padding: 8px; border: 1px solid #ddd;">#</th>
+          <th scope="col" style="padding: 8px; border: 1px solid #ddd;">Category Name</th>
+          <th scope="col" style="padding: 8px; border: 1px solid #ddd;">Service Name</th>
+          <th scope="col" style="padding: 8px; border: 1px solid #ddd;">User Name</th>
+          <th scope="col" style="padding: 8px; border: 1px solid #ddd;">Email</th>
+          <th scope="col" style="padding: 8px; border: 1px solid #ddd;">Rate</th>
+          <th scope="col" style="padding: 8px; border: 1px solid #ddd;">Requested Date</th>
+          <th scope="col" style="padding: 8px; border: 1px solid #ddd;">Requested Time</th>
+          <th scope="col" style="padding: 8px; border: 1px solid #ddd;">Accepted</th>
+          <th scope="col" style="padding: 8px; border: 1px solid #ddd;">Completed</th>
+          <th scope="col" style="padding: 8px; border: 1px solid #ddd;">Start Time</th>
+          <th scope="col" style="padding: 8px; border: 1px solid #ddd;">End Time</th>
+          <th scope="col" style="padding: 8px; border: 1px solid #ddd;">Cost</th>
+        </tr>
+      </thead>
+      <tbody class="tbody">
+            <!-- Table rows will be populated here dynamically -->
+      </tbody>
+      <tfoot class="tfoot">
+        <!-- Total cost will be displayed here -->
+      </tfoot>
+  </table>
+</div>
 </div>
 
 
@@ -310,7 +335,7 @@ $(document).ready(function() {
         $('#' + tabId).addClass('active');
         $('.nav-link').removeClass('active');
         $(`[data-target="#${tabId}"]`).addClass('active');
-    }
+  }
 
   $('.nav-link').click(function(event) {
       event.preventDefault();
@@ -328,7 +353,10 @@ $(document).ready(function() {
                   populatecategories(response.categories);
               } else if (tabid == 'appointments') {
                   fetchAndPopulateAppointments();
+              } else if (tabid == 'revenue') {
+                  fetchAndPopulateRevenue();
               }
+
           },
           error: function(xhr) {
               console.error('Error: ', xhr.responseText);
@@ -473,18 +501,18 @@ $(document).ready(function() {
                     <th scope="row" style="padding: 8px; border: 1px solid #ddd;">${index + 1}</th>
                     <td style="padding: 8px; border: 1px solid #ddd;" value ="${info.category_id}">${info.category_name}</td>
                     <td style="padding: 8px; border: 1px solid #ddd;" value ="${info.services_id}">${info.service_name}</td>
-                    <td style="padding: 8px; border: 1px solid #ddd;">${info.rate}</td>
                     <td style="padding: 8px; border: 1px solid #ddd;">${info.user_name}</td>
                     <td style="padding: 8px; border: 1px solid #ddd;">${info.user_email}</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">${info.rate}</td>
                     <td style="padding: 8px; border: 1px solid #ddd;">${info.requesteddate}</td>
                     <td style="padding: 8px; border: 1px solid #ddd;">${info.requestedtime}</td>
                     <td style="padding: 8px; border: 1px solid #ddd;">${info.accepted}</td>
                     <td style="padding: 8px; border: 1px solid #ddd;">${info.completed}</td>
                     <td style="padding: 8px; border: 1px solid #ddd;">
-                        <button type="button" class="btn btn-primary btn-success" data-usercart-id="${info.id}">Accept</button>
-                        <button type="button" class="btn btn-primary btn-danger" data-usercart-id="${info.id}">Reject</button>
-                        <button type="button" class="btn btn-primary btn-warning" data-usercart-id="${info.id}">Start Job</button>
-                        <button type="button" class="btn btn-primary btn-success" data-usercart-id="${info.id}">End Job</button>
+                        <button type="button" class="btn btn-action btn-success" data-role="accept" data-usercart-id="${info.id}">Accept</button>
+                        <button type="button" class="btn btn-action btn-danger" data-role="reject" data-usercart-id="${info.id}">Reject</button>
+                        <button type="button" class="btn btn-action btn-warning" data-role="startjob" data-usercart-id="${info.id}">Start Job</button>
+                        <button type="button" class="btn btn-action btn-success" data-role="endjob" data-usercart-id="${info.id}">End Job</button>
                     </td>
                 </tr>`;
                 tbody.append(row);
@@ -496,6 +524,53 @@ $(document).ready(function() {
       }
     });
   }
+
+  function fetchAndPopulateRevenue() {
+    $.ajax({
+        type: "GET",
+        url: "/fetchrevenuedata",  // This URL should return both users, products data, and totalCost
+        success: function(response) {
+            if (response.combinedInfo && response.combinedInfo.length > 0) {
+                var tbody = $('#revenue .table tbody');
+                var tfoot = $('#revenue .table tfoot');
+                tbody.empty(); // Clear existing rows
+                tfoot.empty(); // Clear existing footer
+
+                $.each(response.combinedInfo, function(index, info) {
+                    var row = `<tr>
+                        <th scope="row">${index + 1}</th>
+                        <td style="padding: 8px; border: 1px solid #ddd;">${info.category_name}</td>
+                        <td style="padding: 8px; border: 1px solid #ddd;">${info.service_name}</td>
+                        <td style="padding: 8px; border: 1px solid #ddd;">${info.user_name}</td>
+                        <td style="padding: 8px; border: 1px solid #ddd;">${info.user_email}</td>
+                        <td style="padding: 8px; border: 1px solid #ddd;">${info.rate}</td>
+                        <td style="padding: 8px; border: 1px solid #ddd;">${info.requesteddate}</td>
+                        <td style="padding: 8px; border: 1px solid #ddd;">${info.requestedtime}</td>
+                        <td style="padding: 8px; border: 1px solid #ddd;">${info.accepted}</td>
+                        <td style="padding: 8px; border: 1px solid #ddd;">${info.completed}</td>
+                        <td style="padding: 8px; border: 1px solid #ddd;">${info.jobstarttime ? `$${info.jobstarttime}` : 'Job Not Started'}</td>
+                        <td style="padding: 8px; border: 1px solid #ddd;">${info.jobendtime ? `$${info.jobendtime}` : 'Job Not Completed'}</td>
+                        <td style="padding: 8px; border: 1px solid #ddd;">${info.cost ? `$${info.cost}` : 'Not Available Yet'}</td>
+                    </tr>`;
+                    tbody.append(row);
+                });
+
+                // Append the total cost row in the footer
+                var totalRow = `<tr>
+                    <td colspan="10" style="text-align: right;">Total Cost:</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">${response.totalCost ? `$${response.totalCost }` : 'Not Available Yet'}</td>
+                </tr>`;
+                tfoot.append(totalRow);
+            } else {
+                console.log('No data to display.');
+            }
+        },
+        error: function(xhr) {
+            console.error("Error fetching data: ", xhr.responseText);
+        }
+    });
+}
+
 
   $('#addservicesForm').submit(function(event) {
       event.preventDefault();
@@ -612,23 +687,52 @@ $(document).ready(function() {
   });
 
   $(document).on('click', '.btn-deleteuserservice', function() {
-        var availabilityid = $(this).data('deleteuserservice-id');
-        if (confirm('Are you sure you want to delete this service?')) {
-            $.ajax({
-                type: "POST",
-                url: '/deleteuserservice',
-                data: { availabilityid: availabilityid, _token: "{{ csrf_token() }}" },
-                success: function(response) {
-                    alert('Service deleted successfully!');
-                    fetchAndPopulateData();
-                    activateTab('users');
-                },
-                error: function(xhr) {
-                    alert('Error deleting service: ' + xhr.responseText);
-                }
-            });
+      var availabilityid = $(this).data('deleteuserservice-id');
+      if (confirm('Are you sure you want to delete this service?')) {
+          $.ajax({
+              type: "POST",
+              url: '/deleteuserservice',
+              data: { availabilityid: availabilityid, _token: "{{ csrf_token() }}" },
+              success: function(response) {
+                  alert('Service deleted successfully!');
+                  fetchAndPopulateData();
+                  activateTab('users');
+              },
+              error: function(xhr) {
+                  alert('Error deleting service: ' + xhr.responseText);
+              }
+          });
+      }
+  });
+
+
+  $(document).on('click', '.btn-action', function() {
+    event.preventDefault();
+    var role = $(this).data('role');
+    var cart_id = $(this).data('usercart-id');
+    var Url = '/appointmentactions'
+    var infoData = { role: role, cart_id: cart_id, _token: "{{ csrf_token() }}" };
+    $.ajax({
+        type: "POST",
+        url: Url,
+        data: infoData,
+      success: function(response) {
+        if (response.status === 'success') {
+
+          fetchAndPopulateAppointments(); // Fetch and populate appointments
+          activateTab('appointments');
+
+        } else {
+            console.error('Error: ', response.message);
         }
+      },
+      error: function(xhr) {
+          console.error('Error: ', xhr.responseText);
+      }
     });
+  });
+
+  
 
 });
 

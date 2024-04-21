@@ -101,9 +101,10 @@ class HomeController extends Controller
                 'requestedtime' => $time,
                 'requested' => 'Y',
                 'accepted' => 'N',
-                'jobstarttime' => $time,
-                'jobendtime' => $time,
+                'jobstarttime' => null,
+                'jobendtime' => null,
                 'completed' => 'N',
+                'cost' => null,
             ]);
     
             $cartdata = DB::table('user_carts')
@@ -111,7 +112,7 @@ class HomeController extends Controller
                     ->join('categories', 'available__services.category_id', '=', 'categories.id')
                     ->join('services', 'available__services.services_id', '=', 'services.id')
                     ->where('normaluser_id', $value)
-                    ->select('user_carts.id','user_carts.requesteddate','user_carts.requestedtime','user_carts.requested','user_carts.accepted','available__services.id','available__services.category_id','categories.category_name', 'available__services.services_id','services.service_name', 'services.description', 'available__services.image', 'available__services.rate', 'available__services.zip','available__services.city')
+                    ->select('user_carts.id','user_carts.requesteddate','user_carts.requestedtime','user_carts.requested','user_carts.accepted','user_carts.jobstarttime','user_carts.jobendtime','user_carts.completed','user_carts.cost','available__services.id','available__services.category_id','categories.category_name', 'available__services.services_id','services.service_name', 'services.description', 'available__services.image', 'available__services.rate', 'available__services.zip','available__services.city')
                     ->get();
     
             $request->session()->flash('success', 'You have successfully requested for the service on that particular date. Please change the date if you require the service on another date. Thank You!!');

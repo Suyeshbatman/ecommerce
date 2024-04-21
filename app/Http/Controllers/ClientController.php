@@ -21,6 +21,7 @@ use Illuminate\Validation\Rules;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class ClientController extends Controller
 {
@@ -418,29 +419,14 @@ class ClientController extends Controller
 
     public function fetchappointmentdata()
     {
-        $tabid = 'users';
-
         $value = Session::get('user_id');
-        //$userdata = User::where('id', $value)->get();
-        // $availableservices = DB::table('available__services')
-        //         ->join('services', 'available__services.services_id', '=', 'services.id')
-        //         ->join('categories', 'available__services.category_id', '=', 'categories.id')
-        //         ->where('user_id', $value)
-        //         ->select('available__services.id','available__services.category_id','categories.category_name', 'available__services.services_id','services.service_name', 'services.description', 'available__services.image', 'available__services.rate', 'available__services.zip','available__services.city')
-        //         ->get();
-        // $userinfo = DB::table('user_carts')
-        //         ->join('available__services', 'available__services.id', '=', 'user_carts.availability_id')
-        //         ->where('availability_id', $availableservices->id)
-        //         ->select('user_carts.normaluser_id')
-        //         ->get();
-
-
+        
         $combinedInfo = DB::table('available__services')
         ->join('services', 'available__services.services_id', '=', 'services.id')
         ->join('categories', 'available__services.category_id', '=', 'categories.id')
         ->join('user_carts', 'available__services.id', '=', 'user_carts.availability_id')
-        ->leftJoin('users', 'user_carts.normaluser_id', '=', 'users.id')  // Assuming 'users' is the table name and 'id' is the key
-        ->where('available__services.user_id', $value)  // Assuming $value is your user_id variable
+        ->leftJoin('users', 'user_carts.normaluser_id', '=', 'users.id')  
+        ->where('available__services.user_id', $value)  
         ->select(
             'available__services.id as available_service_id',
             'available__services.category_id',
@@ -459,7 +445,91 @@ class ClientController extends Controller
         )
         ->get();
 
-        return response()->json(['success' => true, 'combinedInfo' => $combinedInfo]);   
+        return response()->json(['success' => true, 'combinedInfo' => $combinedInfo]);       
+    }
+
+    public function appointmentactions(Request $request)
+    {
+
+        if($request->role === "accept"){
+            $cart = UserCart::find($request->cart_id);
+            $data = $request->only(['accepted']);
+            $data['accepted'] = 'Y';   
+            $cart->update($data);
+        }else if($request->role === "reject"){
+            $cart = UserCart::find($request->cart_id);
+            $data = $request->only(['accepted']);
+            $data['accepted'] = 'R';  
+            $cart->update($data);
+        }else if($request->role === "startjob"){
+            $cart = UserCart::find($request->cart_id);
+            $data = $request->only(['jobstarttime']);
+            $starttime = Carbon::now()->format('H:i');
+            $data['jobstarttime'] = $starttime;   
+            $cart->update($data);
+        }else if($request->role === "endjob"){
+            $cart = UserCart::find($request->cart_id);
+            $data = $request->only(['jobendtime']);
+            $endtime = Carbon::now()->format('H:i');
+            $data['jobendtime'] = $endtime;   
+            $cart->update($data);
+
+            $cost = Usercart::where('id',$request->cart_id)->first();
+            if(!empty($cost)){
+                $startTime = Carbon::createFromFormat('H:i', $cost->jobstarttime);
+                $endTime = Carbon::createFromFormat('H:i', $cost->jobendtime);
+
+                $durationInHours = $endTime->diffInHours($startTime);
+                $costcalculation = $durationInHours * $cart->rate;
+
+                $cost->cost = $costcalculation;   
+                $cart->save();
+
+            }  
+        }
+
+        return response()->json(['success' => true]);       
+    }
+
+    public function fetchrevenuedata()
+    {
+        $value = Session::get('user_id');
         
+        $combinedInfo = DB::table('available__services')
+            ->join('services', 'available__services.services_id', '=', 'services.id')
+            ->join('categories', 'available__services.category_id', '=', 'categories.id')
+            ->join('user_carts', 'available__services.id', '=', 'user_carts.availability_id')
+            ->leftJoin('users', 'user_carts.normaluser_id', '=', 'users.id')
+            ->where('available__services.user_id', $value)
+            ->select(
+                'available__services.id as available_service_id',
+                'available__services.category_id',
+                'categories.category_name',
+                'available__services.services_id',
+                'services.service_name',
+                'available__services.rate',
+                'user_carts.id as user_cart_id',
+                'user_carts.normaluser_id',
+                'user_carts.requesteddate',
+                'user_carts.requestedtime',
+                'user_carts.accepted',
+                'user_carts.completed',
+                'user_carts.cost',  
+                'users.name as user_name',
+                'users.email as user_email'
+            )
+            ->get();
+
+        // Calculate the total cost separately
+        $totalCost = DB::table('available__services')
+            ->join('user_carts', 'available__services.id', '=', 'user_carts.availability_id')
+            ->where('available__services.user_id', $value)
+            ->sum('user_carts.cost');
+
+        return response()->json([
+            'success' => true, 
+            'combinedInfo' => $combinedInfo, 
+            'totalCost' => $totalCost
+        ]);      
     }
 }

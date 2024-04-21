@@ -19,5 +19,6 @@ class UserCart extends Model
         'jobstarttime',
         'jobendtime',
         'completed',
+        'cost'
     ];
 }

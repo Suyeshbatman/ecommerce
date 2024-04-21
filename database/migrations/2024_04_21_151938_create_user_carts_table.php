@@ -19,9 +19,10 @@ return new class extends Migration
             $table->Time('requestedtime');
             $table->String('requested');
             $table->String('accepted');
-            $table->Time('jobstarttime');
-            $table->Time('jobendtime');
+            $table->Time('jobstarttime')->nullable();
+            $table->Time('jobendtime')->nullable();
             $table->String('completed');
+            $table->Integer('cost')->nullable();
             $table->timestamps();
         });
     }
