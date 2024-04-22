@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
     <meta name="description" content="" />
     <meta name="author" content="" />
-    <title>Shop Homepage - Start Bootstrap Template</title>
+    <title>HamroMercado</title>
     <!-- Favicon-->
     <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
     <!-- Bootstrap icons-->
@@ -76,7 +76,7 @@
     </script>
 </head>
 <body>
-    <div id="app">
+    <div id="app" style="background-color:#f06123">
         @include('include.navbar')
         @if(Session::has('user_name'))
             @if(Session::get('user_role') == 'Superadmin')

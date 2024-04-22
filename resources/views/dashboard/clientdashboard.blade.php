@@ -6,7 +6,7 @@
      </div>
 @endif -->
 
-<ul class="nav nav-pills nav-justified">
+<ul class="nav nav-pills nav-justified" style="font-weight: bold; font-size: 1.35rem; background-color: white;">
   <li class="nav-item">
                                          
     <a aria-current="page" href="#" data-target="#users" class="nav-link active" id="users_tab">Users</a>
@@ -31,10 +31,10 @@
 
 
 <div class="tab-content">
-  <div class="tab-pane active" id="users" style="width: 100%; margin: 20px auto; padding: 15px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
+  <div class="tab-pane active" id="users" style="width: 100%; margin: 20px auto; padding: 15px; box-shadow: 0 0 10px rgba(0,0,0,0.1); background-color: white">
     <table class="userstable table-bordered" id="userstable" style="width: 100%; border-collapse: collapse;">
       <h1> User Data </h1>
-      <thead>
+      <thead style="background-color: #343a40; color: #ffffff;">
         <tr>
           <th scope="col" style="padding: 8px; border: 1px solid #ddd;">#</th>
           <th scope="col" style="padding: 8px; border: 1px solid #ddd;">First</th>
@@ -44,7 +44,7 @@
         </tr>
       </thead>
       @isset($userdata)
-      <tbody>
+      <tbody style="background-color: #f8f9fa; color: #333333;">
         <tr>
           <th scope="row" style="padding: 8px; border: 1px solid #ddd;">1</th>
           <td style="padding: 8px; border: 1px solid #ddd;">{{$userdata->name}}</td>
@@ -60,10 +60,9 @@
             <!-- Table rows will be populated here dynamically -->
       </tbody>
     </table>
-    <div class="tab-pane active" id="services" style="width: 100%; margin: 20px auto; padding: 15px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
       <table class="servicestable table-bordered" id="servicestable" style="width: 100%; border-collapse: collapse;">
       <h1> User Services Data </h1>
-        <thead>
+        <thead style="background-color: #343a40; color: #ffffff;">
           <tr>
             <th scope="col" style="padding: 8px; border: 1px solid #ddd;">#</th>
             <th scope="col" style="padding: 8px; border: 1px solid #ddd;">Category Name</th>
@@ -78,7 +77,7 @@
         
         @isset($availableservices)
         @foreach($availableservices as $key=>$value)
-        <tbody>
+        <tbody style="background-color: #f8f9fa; color: #333333;">
           <tr>
             <th scope="row" style="padding: 8px; border: 1px solid #ddd;">{{$key + 1}}</th>
             <td style="padding: 8px; border: 1px solid #ddd;" value ="{{$value->category_id}}">{{$value->category_name}}</td>
@@ -97,7 +96,6 @@
         @endisset
         
       </table>
-    </div> 
     <tbody class="tbody">
             <!-- Table rows will be populated here dynamically -->
     </tbody>
@@ -166,7 +164,7 @@
 <div class="tab-pane" id="appointments" style="width: 100%; margin: 20px auto; padding: 15px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
   <table class="table table-bordered" id="appointmentstable" style="width: 100%; border-collapse: collapse;">
       <h1> Appointment Data </h1>
-      <thead>
+      <thead style="background-color: #343a40; color: #ffffff;">
         <tr>
           <th scope="col" style="padding: 8px; border: 1px solid #ddd;">#</th>
           <th scope="col" style="padding: 8px; border: 1px solid #ddd;">Category Name</th>
@@ -181,7 +179,7 @@
           <th style="padding: 8px; border: 1px solid #ddd;">Actions</th>
         </tr>
       </thead>
-      <tbody class="tbody">
+      <tbody class="tbody" style="background-color: #f8f9fa; color: #333333;">
             <!-- Table rows will be populated here dynamically -->
       </tbody>
   </table>
@@ -191,7 +189,7 @@
 <div class="tab-pane" id="revenue" style="width: 100%; margin: 20px auto; padding: 15px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
   <table class="table table-bordered" id="revenuetable" style="width: 100%; border-collapse: collapse;">
       <h1> Appointment Data </h1>
-      <thead>
+      <thead style="background-color: #343a40; color: #ffffff;">
         <tr>
           <th scope="col" style="padding: 8px; border: 1px solid #ddd;">#</th>
           <th scope="col" style="padding: 8px; border: 1px solid #ddd;">Category Name</th>
@@ -208,10 +206,10 @@
           <th scope="col" style="padding: 8px; border: 1px solid #ddd;">Cost</th>
         </tr>
       </thead>
-      <tbody class="tbody">
+      <tbody class="tbody" style="background-color: #f8f9fa; color: #333333;">
             <!-- Table rows will be populated here dynamically -->
       </tbody>
-      <tfoot class="tfoot">
+      <tfoot class="tfoot" style="background-color: #f8f9fa; color: #333333;">
         <!-- Total cost will be displayed here -->
       </tfoot>
   </table>
@@ -548,8 +546,8 @@ $(document).ready(function() {
                         <td style="padding: 8px; border: 1px solid #ddd;">${info.requestedtime}</td>
                         <td style="padding: 8px; border: 1px solid #ddd;">${info.accepted}</td>
                         <td style="padding: 8px; border: 1px solid #ddd;">${info.completed}</td>
-                        <td style="padding: 8px; border: 1px solid #ddd;">${info.jobstarttime ? `$${info.jobstarttime}` : 'Job Not Started'}</td>
-                        <td style="padding: 8px; border: 1px solid #ddd;">${info.jobendtime ? `$${info.jobendtime}` : 'Job Not Completed'}</td>
+                        <td style="padding: 8px; border: 1px solid #ddd;">${info.jobstarttime ? `${info.jobstarttime}` : 'Job Not Started'}</td>
+                        <td style="padding: 8px; border: 1px solid #ddd;">${info.jobendtime ? `${info.jobendtime}` : 'Job Not Completed'}</td>
                         <td style="padding: 8px; border: 1px solid #ddd;">${info.cost ? `$${info.cost}` : 'Not Available Yet'}</td>
                     </tr>`;
                     tbody.append(row);
@@ -695,8 +693,9 @@ $(document).ready(function() {
               data: { availabilityid: availabilityid, _token: "{{ csrf_token() }}" },
               success: function(response) {
                   alert('Service deleted successfully!');
-                  fetchAndPopulateData();
                   activateTab('users');
+                  fetchAndPopulateData();
+                  
               },
               error: function(xhr) {
                   alert('Error deleting service: ' + xhr.responseText);
@@ -718,16 +717,18 @@ $(document).ready(function() {
         data: infoData,
       success: function(response) {
         if (response.status === 'success') {
-
-          fetchAndPopulateAppointments(); // Fetch and populate appointments
           activateTab('appointments');
-
-        } else {
-            console.error('Error: ', response.message);
+          fetchAndPopulateAppointments(); // Fetch and populate appointments 
+          alert(response.message);
+        }else {
+            // Handle non-successful responses
+            alert('Error: ' + response.message);
         }
       },
       error: function(xhr) {
-          console.error('Error: ', xhr.responseText);
+            var response = JSON.parse(xhr.responseText);
+            var errorMessage = response.message || (xhr.status + ': ' + xhr.statusText);
+            alert('Error - ' + errorMessage);
       }
     });
   });

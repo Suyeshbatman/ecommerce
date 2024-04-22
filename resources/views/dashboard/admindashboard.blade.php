@@ -6,7 +6,7 @@
      </div>
 @endif -->
 
-<ul class="nav nav-pills nav-justified">
+<ul class="nav nav-pills nav-justified" style="font-weight: bold; font-size: 1.35rem; background-color: white;">
   <li class="nav-item">
                                          
     <a aria-current="page" href="#" data-target="#users" class="nav-link active" id="users_tab">Users</a>
@@ -31,7 +31,7 @@
 
 
 <div class="tab-content">
-<div class="tab-pane active" id="users">
+<div class="tab-pane active" id="users" style="width: 100%; margin: 20px auto; padding: 15px; box-shadow: 0 0 10px rgba(0,0,0,0.1); background-color: white">
         <!-- Table for Paid Subscribers (no changes needed here) -->
         <table class="table table-bordered" id="paidSubscribersTable">
     <thead style="background-color: #343a40; color: #ffffff;">
@@ -85,12 +85,14 @@
 </table>
     </div>
 
-  <div class="tab-pane" id="services">
+  <div class="tab-pane" id="services" style="width: 100%; margin: 20px auto; padding: 15px; box-shadow: 0 0 10px rgba(0,0,0,0.1); background-color: white">
     <table class="table table-bordered">
         <thead style="background-color: #343a40; color: #ffffff;">
             <tr>
                 <th scope="col">#</th>
                 <th scope="col">Service Name</th>
+                <th scope="col">Description</th>
+                <th scope="col">Difficulty</th>
                 <th scope="col">Action</th>
             </tr>
         </thead>
@@ -100,7 +102,7 @@
     </table>
 </div>
 
-<div class="tab-pane" id="addservices">
+<div class="tab-pane" id="addservices" style="width: 100%; margin: 20px auto; padding: 15px; box-shadow: 0 0 10px rgba(0,0,0,0.1); background-color: white">
   @isset($tabid)
   <input type="hidden" class="form-control" id="viewdata" value="{{$tabid}}" name="viewdata">
   @endisset
@@ -132,7 +134,7 @@
       @csrf
         <div style="margin-bottom: 1rem;">
           <label for="category_id" style="display: block; color: #000;">Category</label>
-          <select class="form-control" id="category_id" name="category_id" required>
+          <select class="form-control" id="editCategoryId" name="category_id" required>
             <option selected disabled value="">Choose a category</option>
             <!-- Options will be dynamically populated -->
           </select>
@@ -164,7 +166,8 @@
 
 
 
-  <div class="tab-pane" id="revenue">
+  <div class="tab-pane" id="revenue" style="width: 100%; margin: 20px auto; padding: 15px; box-shadow: 0 0 10px rgba(0,0,0,0.1); background-color: white">
+  
   </div>
   
 </div>
@@ -181,24 +184,25 @@
       </div>
       <div class="modal-body">
         <!-- Form starts here -->
-        <form id="editServiceForm">
+        <form class="editServiceForm" id="editServiceForm">
+        <input type="hidden" class="form-control" id="editServiceId" name="service_id" value="">
           <div class="mb-3">
-            <label for="editCategoryId" class="form-label">Category</label>
-            <select class="form-select" id="editCategoryId" name="category_id">
+            <label for="editcategoryid" class="form-label">Category</label>
+            <select class="form-select" id="editcategoryid" name="category_id" value="">
               <!-- Categories options will be populated here dynamically -->
             </select>
           </div>
           <div class="mb-3">
             <label for="editServiceName" class="form-label">Service Name</label>
-            <input type="text" class="form-control" id="editServiceName" name="service_name">
+            <input type="text" class="form-control" id="editServiceName" name="service_name" value="">
           </div>
           <div class="mb-3">
             <label for="editServiceDescription" class="form-label">Description</label>
-            <textarea class="form-control" id="editServiceDescription" name="description"></textarea>
+            <textarea class="form-control" id="editServiceDescription" name="description" value=""></textarea>
           </div>
           <div class="mb-3">
             <label for="editDifficulty" class="form-label">Difficulty</label>
-            <input type="number" class="form-control" id="editDifficulty" name="difficulty">
+            <input type="number" class="form-control" id="editDifficulty" name="difficulty" value="">
           </div>
         </form>
         <!-- Form ends here -->
@@ -223,7 +227,9 @@ $(document).ready(function() {
         $.each(services, function(index, service) {
             var row = `<tr>
                 <th scope="row">${index + 1}</th>
-                <td>${service.service_name}</td>
+                <td data-service-name="${service.service_name}" value="">${service.service_name}</td>
+                <td data-description="${service.description}" value="">${service.description}</td>
+                <td data-difficulty="${service.difficulty}" value="">${service.difficulty}</td>
                 <td>
                     <button type="button" class="btn btn-primary btn-edit" data-service-id="${service.id}">Edit</button>
                     <button type="button" class="btn btn-danger btn-delete" data-service-id="${service.id}">Delete</button>
@@ -232,56 +238,6 @@ $(document).ready(function() {
             tbody.append(row);
         });
     }
-
-    function fetchCategories() {
-        if (categoriesCache) {
-            return Promise.resolve(categoriesCache);
-        } else {
-            return $.ajax({
-                type: "GET",
-                url: "/fetch-categories",
-                success: function(response) {
-                    categoriesCache = response.categories;  // Cache the categories
-                    return response.categories;
-                },
-                error: function(xhr) {
-                    console.error("Error fetching categories: ", xhr.responseText);
-                    return [];
-                }
-            });
-        }
-    }
-
-    function populateCategoryDropdown(categories) {
-        var dropdown = $('#editCategoryId');
-        dropdown.empty();
-        dropdown.append('<option selected disabled value="">Choose a category</option>');
-        $.each(categories, function(index, category) {
-            dropdown.append($('<option>', {
-                value: category.id,
-                text: category.category_name
-            }));
-        });
-    }
-
-    // Populate categories when the modal is about to be shown
-    $('#editServiceModal').on('show.bs.modal', function (event) {
-        var button = $(event.relatedTarget); // Button that triggered the modal
-        var serviceId = button.data('service-id'); // Extract info from data-* attributes
-        var serviceName = button.data('service-name'); // Assuming you have service name in data attribute
-        var serviceDescription = button.data('description'); // Assuming description data
-        var serviceDifficulty = button.data('difficulty'); // Assuming difficulty data
-
-        fetchCategories().then(function(categories) {
-            populateCategoryDropdown(categories);
-        });
-
-        // And set other form values
-        $('#editServiceForm').find('#editServiceName').val(serviceName);
-        $('#editServiceForm').find('#editServiceDescription').val(serviceDescription);
-        $('#editServiceForm').find('#editDifficulty').val(serviceDifficulty);
-        $('#editServiceForm').find('#editServiceId').val(serviceId); // Assuming you have a hidden field for serviceId
-    });
 
     // Function to activate a specific tab
     function activateTab(tabId) {
@@ -297,7 +253,7 @@ $(document).ready(function() {
             type: "GET",
             url: "/fetch-categories",
             success: function(response) {
-                var dropdown = $('#category_id');
+                var dropdown = $('#editCategoryId');
                 dropdown.empty();
                 dropdown.append('<option selected disabled value="">Choose a category</option>');
                 $.each(response.categories, function(index, category) {
@@ -470,7 +426,37 @@ $(document).ready(function() {
     // Delegated event handling for edit button clicks
     $(document).on('click', '.btn-edit', function() {
         var serviceId = $(this).data('service-id');
-        console.log("Edit service with ID:", serviceId);
+        
+        var serviceName = $(this).data('service-name'); // Ensure data attribute is data-service-name
+        var serviceDescription = $(this).data('description'); // Ensure data attribute is data-description
+        var serviceDifficulty = $(this).data('difficulty'); // Ensure data attribute is data-difficulty
+        console.log(serviceDifficulty);
+
+        // Populate the modal inputs immediately
+        $('#editServiceId').val(serviceId);
+        $('#editServiceName').val(serviceName);
+        $('#editServiceDescription').val(serviceDescription);
+        $('#editDifficulty').val(serviceDifficulty);
+
+        $.ajax({
+            type: "GET",
+            url: "/fetch-categories",
+            success: function(response) {
+                var dropdown = $('#editcategoryid');
+                dropdown.empty();
+                dropdown.append('<option selected disabled value="">Choose a category</option>');
+                $.each(response.categories, function(index, category) {
+                    dropdown.append($('<option>', {
+                        value: category.id,
+                        text: category.category_name
+                    }));
+                });
+            },
+            error: function(xhr) {
+                console.error("Error fetching categories: ", xhr.responseText);
+            }
+        }); 
+       // console.log("Edit service with ID:", serviceId);
         $('#editServiceModal').modal('show');
     });
 
@@ -546,10 +532,6 @@ $(document).ready(function() {
         }
     });
 });
-
-
-
-
 
 
     $('#viewdata').change(function(event) {

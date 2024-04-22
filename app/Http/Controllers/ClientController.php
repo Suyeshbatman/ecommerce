@@ -338,15 +338,6 @@ class ClientController extends Controller
             'city2' => 'required',
         ]);
 
-        // if($request->hasFile('image2')){
-        //     $imagefile = $request->file('image2');
-        //     $filename = time() . '.' . $imagefile->getClientOriginalExtension();
-        //     $imagefile->storeAs('public/images', $filename);
-        //     //$imagefile->move('images', $filename);
-        //     // $person->image = $filename;
-        //     // $person->save();
-        // };
-
         
         $service = Available_Services::find($request->availability_id);
         //$service->image = $filename;
@@ -450,45 +441,79 @@ class ClientController extends Controller
 
     public function appointmentactions(Request $request)
     {
+        $cost = Usercart::where('id',$request->cart_id)->first();
+        try{
+            if($request->role === "accept"){
+                $cart = UserCart::find($request->cart_id);
+                $data = $request->only(['accepted']);
+                $data['accepted'] = 'Y';   
+                $cart->update($data);
+                return response()->json(['status' => 'success', 'message' => 'Successfully accepted!!']);
+            }else if($request->role === "reject"){
+                if($cost->accepted == 'Y' && $cost->jobstarttime !== null){
+                    return response()->json(['status' => 'error', 'message' => 'Cannot reject, the job already started!!'], 400);
+                    
+                }else{
+                    $cart = UserCart::find($request->cart_id);
+                    $data = $request->only(['accepted']);
+                    $data['accepted'] = 'R';  
+                    $cart->update($data);
+                    return response()->json(['status' => 'success', 'message' => 'Successfully rejected!!']);
+                }
+            }else if($request->role === "startjob"){
 
-        if($request->role === "accept"){
-            $cart = UserCart::find($request->cart_id);
-            $data = $request->only(['accepted']);
-            $data['accepted'] = 'Y';   
-            $cart->update($data);
-        }else if($request->role === "reject"){
-            $cart = UserCart::find($request->cart_id);
-            $data = $request->only(['accepted']);
-            $data['accepted'] = 'R';  
-            $cart->update($data);
-        }else if($request->role === "startjob"){
-            $cart = UserCart::find($request->cart_id);
-            $data = $request->only(['jobstarttime']);
-            $starttime = Carbon::now()->format('H:i');
-            $data['jobstarttime'] = $starttime;   
-            $cart->update($data);
-        }else if($request->role === "endjob"){
-            $cart = UserCart::find($request->cart_id);
-            $data = $request->only(['jobendtime']);
-            $endtime = Carbon::now()->format('H:i');
-            $data['jobendtime'] = $endtime;   
-            $cart->update($data);
+                if($cost->accepted == 'Y' && $cost->jobstarttime == null){
+                    $cart = UserCart::find($request->cart_id);
+                    $data = $request->only(['jobstarttime']);
+                    $starttime = Carbon::now()->format('H:i:s');
+                    $data['jobstarttime'] = $starttime;   
+                    $cart->update($data);
+                    return response()->json(['status' => 'success', 'message' => 'Successfully started job!!']);
+                }else{
+                    return response()->json(['status' => 'error', 'message' => 'Cannot start job!!'], 400);
+                }
 
-            $cost = Usercart::where('id',$request->cart_id)->first();
-            if(!empty($cost)){
-                $startTime = Carbon::createFromFormat('H:i', $cost->jobstarttime);
-                $endTime = Carbon::createFromFormat('H:i', $cost->jobendtime);
-
-                $durationInHours = $endTime->diffInHours($startTime);
-                $costcalculation = $durationInHours * $cart->rate;
-
-                $cost->cost = $costcalculation;   
+            }else if ($request->role === "endjob") {
+                $cart = UserCart::find($request->cart_id);
+            
+                if (!$cart || $cart->jobstarttime === null) {
+                    return response()->json(['status' => 'error', 'message' => 'Cannot end job before starting it!!'], 400);
+                }
+            
+                // Update job end time and completed status
+                $endtime = Carbon::now()->format('H:i:s');
+                $cart->jobendtime = $endtime;
+                $cart->completed = 'Y';
                 $cart->save();
-
+            
+                // Refresh cart to ensure it reflects the latest data
+                $cart->refresh();
+            
+                $rate = Available_Services::where('id', $cart->availability_id)->first()->rate;
+                $startTime = Carbon::createFromFormat('H:i:s', $cart->jobstarttime);
+                $endTime = Carbon::createFromFormat('H:i:s', $cart->jobendtime);
+            
+                $durationInMinutes = $endTime->diffInMinutes($startTime);
+                $durationInHours = $durationInMinutes / 60.0;  // Convert minutes to hours correctly
+            
+                $costcalculation = $durationInHours * $rate;
+                $costcalculation = round($costcalculation, 2);
+            
+                // Update the cost
+                $cart->cost = $costcalculation;
+                $cart->save();
+            
+                return response()->json([
+                    'status' => 'success', 
+                    'message' => 'Successfully finished job!! Please check revenue tab for details!!'
+                ]);
+            }else{
+                return response()->json(['status' => 'error', 'message' => 'Invalid action!!'], 400);
             }  
+        
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => 'Server error: ' . $e->getMessage()], 500);
         }
-
-        return response()->json(['success' => true]);       
     }
 
     public function fetchrevenuedata()
@@ -514,6 +539,8 @@ class ClientController extends Controller
                 'user_carts.requestedtime',
                 'user_carts.accepted',
                 'user_carts.completed',
+                'user_carts.jobstarttime',
+                'user_carts.jobendtime',
                 'user_carts.cost',  
                 'users.name as user_name',
                 'users.email as user_email'

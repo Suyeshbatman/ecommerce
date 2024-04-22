@@ -22,7 +22,7 @@ return new class extends Migration
             $table->Time('jobstarttime')->nullable();
             $table->Time('jobendtime')->nullable();
             $table->String('completed');
-            $table->Integer('cost')->nullable();
+            $table->Float('cost')->nullable();
             $table->timestamps();
         });
     }

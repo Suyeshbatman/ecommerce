@@ -8,10 +8,10 @@
   </div>
 @endif
 
-<div style="width: 80%; margin: 20px auto; padding: 15px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
+<div style="width: 100%; margin: 20px auto; padding: 15px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
     <table style="width: 100%; border-collapse: collapse;">
-        <thead>
-            <tr style="background-color: #f2f2f2;">
+        <thead style="background-color: #343a40; color: #ffffff;">
+            <tr style="background-color: #0000;">
                 <th style="padding: 8px; border: 1px solid #ddd;">Category Name</th>
                 <th style="padding: 8px; border: 1px solid #ddd;">Service Name</th>
                 <th style="padding: 8px; border: 1px solid #ddd;">Requested Date</th>
@@ -27,7 +27,7 @@
                 <th style="padding: 8px; border: 1px solid #ddd;">Actions</th>
             </tr>
         </thead>
-        <tbody>
+        <tbody style="background-color: #f8f9fa; color: #333333;">
         @isset($cartdata)
         @foreach($cartdata as $value)
             <tr> 

@@ -31,7 +31,7 @@ class LoginController extends Controller
 
             $request->session()->put('user_name', $user->name);
             $request->session()->put('user_id', $user->id);
-                $userrole = UserRoles::where('userid',$user->id)->first();
+            $userrole = UserRoles::where('userid',$user->id)->first();
     
                 if(!empty($userrole)){
                     $role = Roles::where('id',$userrole->roleid)->first();
@@ -40,12 +40,20 @@ class LoginController extends Controller
     
                 if ($role->rolename === 'Superadmin') {
     
-                    $userdata = User::all();
-                    $data = Roles::all();
-                    return view('dashboard.admindashboard',['userdata'=>$userdata,'data'=>$data]);
-                    //return view('dashboard.admindashboard');
+                    $unpaidsubscribers = DB::table('users')
+                            ->join('subscriptions', 'users.id', '=', 'subscriptions.user_id')
+                            ->where('paid', '=', 'N')
+                            ->select('users.*')
+                            ->get();
+                    $paidsubscribers = DB::table('users')
+                            ->join('subscriptions', 'users.id', '=', 'subscriptions.user_id')
+                            ->where('paid', '=', 'Y')
+                            ->select('users.*')
+                            ->get();
+
+                    return view('dashboard.admindashboard',['unpaidsubscribers' => $unpaidsubscribers, 'paidsubscribers' => $paidsubscribers]);
     
-                } elseif ($role->rolename === 'Admin') {
+                } else if ($role->rolename === 'Admin') {
                     $userdata = User::where('id', $value)->first();
 
                     $availableservices = DB::table('available__services')
@@ -57,14 +65,31 @@ class LoginController extends Controller
                     
                     return view('dashboard.clientdashboard',['userdata'=>$userdata, 'availableservices'=>$availableservices]);  
     
-                } else {
-                    return redirect(route('home'));
+                } else if ($role->rolename === 'Normal'){
+                    $availableservices = DB::table('available__services')
+                            ->join('services', 'available__services.services_id', '=', 'services.id')
+                            ->join('categories', 'available__services.category_id', '=', 'categories.id')
+                            ->select('available__services.id','available__services.category_id','categories.category_name', 'available__services.services_id','services.service_name', 'services.description', 'available__services.image', 'available__services.rate', 'available__services.zip','available__services.city')
+                            ->get();
+            
+                    return view('landing.home',['availableservices'=>$availableservices]);
                 }      
 		}
-        else {           
-            return view('auth.login'); 
-        }                  
+        else {      
+            $availableservices = DB::table('available__services')
+                    ->join('services', 'available__services.services_id', '=', 'services.id')
+                    ->join('categories', 'available__services.category_id', '=', 'categories.id')
+                    ->select('available__services.id','available__services.category_id','categories.category_name', 'available__services.services_id','services.service_name', 'services.description', 'available__services.image', 'available__services.rate', 'available__services.zip','available__services.city')
+                    ->get();
+    
+            return view('landing.home',['availableservices'=>$availableservices]);     
+        }   
         
+    }
+
+    public function userlogin()
+    {         
+        return view('auth.login'); 
     }
 
     public function redirect()
@@ -98,6 +123,11 @@ class LoginController extends Controller
                     $role = Roles::where('id',$userrole->roleid)->first();
                 
                     $request->session()->put('user_role', $role->rolename);
+
+                    $subcheck = Subscriptions::where('user_id',$user->id)->first();
+                    if(!empty($subcheck)){
+                        $request->session()->put('subscription', 'Subscribed');
+                    }
     
                     if ($role->rolename === 'Superadmin') {
 
@@ -129,25 +159,28 @@ class LoginController extends Controller
                         return view('dashboard.clientdashboard',['userdata'=>$userdata, 'availableservices'=>$availableservices]);  
 
 		            } elseif ($role->rolename === 'Normal') {
-                        // return view('dashboard.clientdashboard',['userdata'=>$userdata,'data'=>$data]);
-                        $value = Session::get('user_id');
-                        $userdata = User::where('id', $value)->first();
                         $availableservices = DB::table('available__services')
                                 ->join('services', 'available__services.services_id', '=', 'services.id')
                                 ->join('categories', 'available__services.category_id', '=', 'categories.id')
                                 ->select('available__services.id','available__services.category_id','categories.category_name', 'available__services.services_id','services.service_name', 'services.description', 'available__services.image', 'available__services.rate', 'available__services.zip','available__services.city')
                                 ->get();
                 
-                        return view('landing.home',['userdata'=>$userdata, 'availableservices'=>$availableservices]);                                 
+                        return view('landing.home',['availableservices'=>$availableservices]);                                 
                     } else{
-
-                        return redirect(route('home'));
+                        $availableservices = DB::table('available__services')
+                                ->join('services', 'available__services.services_id', '=', 'services.id')
+                                ->join('categories', 'available__services.category_id', '=', 'categories.id')
+                                ->select('available__services.id','available__services.category_id','categories.category_name', 'available__services.services_id','services.service_name', 'services.description', 'available__services.image', 'available__services.rate', 'available__services.zip','available__services.city')
+                                ->get();
+                
+                        return view('landing.home',['availableservices'=>$availableservices]);
                     }
                 } 
 		    }
         }
         else {
-            return redirect(route('home'));
+            $invalid = "Invalid Username/Password";     
+            return view('auth.login',['invalid'=>$invalid]); 
         } 
         
     }

@@ -6,29 +6,6 @@
     <p> {{session('error')}} </p>
   </div>
 @endif
-@if(Session::has('user_id'))
-<div class="info-container">
-  <h2>Provide Services!!</h2>
-  <p>Subscribe to our website if you provide services of any kind!!</p>
-  <p>Get access to 1000s of clients from our website!! Expand your Services!!</p>
-  <p>Subscription Rate of $50 per month!!  </p>
-  {!!Form::open(['method'=>'POST','url'=>'/subscribe','class'=>'form-inline'])!!}
-    @csrf
-    <input type="hidden" class="form-control" id="subscribe" name="subscribe" value="{{ Session::get('user_id')}}">
-    <select name='months' id ='months' class="form-select form-select-lg mb-3" aria-label=".form-select-lg example">
-        <option selected>Select Subscription Period</option>
-        <option id='months' name='months' value="1">1 Month</option>
-        <option id='months' name='months' value="2">2 Months</option>
-        <option id='months' name='months' value="3">3 Months</option>
-        <option id='months' name='months' value="5">5 Months</option>
-        <option id='months' name='months' value="6">6 Months</option>
-        <option id='months' name='months' value="9">9 Months</option>
-        <option id='months' name='months' value="12">12 Months</option>
-    </select>
-  <button id="subscribe">Subscribe</button>
-  {!!Form::close() !!}
-</div>
-@endif
 
 <header class="bg-dark py-5">
     <div class="container px-4 px-lg-5 my-5">
@@ -38,20 +15,20 @@
     </div>
 </header>
 <section class="py-5">
-    <div class="container px-4 px-lg-5 mt-5">
+    <div class="container px-4 px-lg-5 mt-5" style="max-width: 2000px;">
         <div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center">
           @isset($availableservices)
           @foreach($availableservices as $value)
             <div class="col mb-5">
                 <div class="card h-100">
                     <!-- Product image-->
-                    <img class="card-img-top" src="{{ url('storage/images/'.$value->image)}}"/>
+                    <img class="card-img-top" src="{{ url('storage/images/'.$value->image)}}" style="width: 100%; height: 250px; object-fit: cover;"/>
                     <!-- Product details-->
-                    <div class="card-body p-4">
-                        <div class="text-center">
-                            <h4 class="fw-bolder">{{$value->category_name}}</h4>
+                    <div class="card-body p-4" style="text-align: center;">
+                        <!-- <div class="text-center"> -->
+                            <h4 class="fw-bolder" style="font-size: 1.25rem; font-weight: bold;">{{$value->category_name}}</h4>
                             <!-- Product name-->
-                            <h5 class="fw-bolder">{{$value->service_name}}</h5>
+                            <h5 class="fw-bolder" style="font-size: 1.25rem; font-weight: bold;">{{$value->service_name}}</h5>
                               <!-- Product reviews-->
                             <div class="d-flex justify-content-center small text-warning mb-2">
                               <div class="bi-star-fill"></div>
@@ -61,15 +38,17 @@
                               <div class="bi-star-fill"></div>
                             </div>
                             <!-- Product price-->
-                            ${{$value->rate}}
+                            <div style="font-size: 1.1rem; font-weight: bold;">${{$value->rate}}</div>
                             <p>{{$value->zip}}</p>
                             <p>{{$value->city}}</p>
-                        </div>
+                        <!-- </div> -->
                     </div>
+                    @if(Session::has('user_id'))
                     <!-- Product actions-->
-                    <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
-                        <div class="text-center"><a class="btn btn-outline-dark mt-auto btn-view" href="#viewdetails" data-service-id="{{$value->id}}">View Details</a></div>
+                    <div class="card-footer p-4 pt-0 border-top-0 bg-transparent" style="text-align: center;">
+                        <div class="text-center"><a class="btn btn-outline-dark mt-auto btn-view" href="#viewdetails" data-service-id="{{$value->id}}" style="font-weight: bold;">View Details</a></div>
                     </div>
+                    @endif
                 </div>
             </div>
           @endforeach
@@ -132,7 +111,30 @@
   </div>
 </div>
 
-
+@if(Session::has('user_id') && !Session::has('subscription'))
+<div class="info-container" style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+    <h2 style="color: #343a40; text-align: center;">Provide Services!!</h2>
+    <p style="color: #666; font-size: 16px; line-height: 1.5;">Subscribe to our website if you provide services of any kind!!</p>
+    <p style="color: #666; font-size: 16px; line-height: 1.5;">Get access to 1000s of clients from our website!! Expand your Services!!</p>
+    <p style="color: #666; font-size: 16px; line-height: 1.5; margin-bottom: 20px;">Subscription Rate of $50 per month!!</p>
+    {!! Form::open(['method'=>'POST', 'url'=>'/subscribe', 'class'=>'form-inline']) !!}
+    @csrf
+    <div style="text-align: center;">
+        <select name="months" id="months" class="form-select form-select-lg mb-3" aria-label=".form-select-lg example" style="margin-right: 10px; width: auto; display: inline-block;">
+            <option selected>Select Subscription Period</option>
+            <option value="1">1 Month</option>
+            <option value="2">2 Months</option>
+            <option value="3">3 Months</option>
+            <option value="5">5 Months</option>
+            <option value="6">6 Months</option>
+            <option value="9">9 Months</option>
+            <option value="12">12 Months</option>
+        </select>
+        <button type="submit" id="subscribe-button" style="background-color: #007bff; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer;">Subscribe</button>
+    </div>
+    {!! Form::close() !!}`
+</div>
+@endif
 
 <script>
 $(document).ready(function() {

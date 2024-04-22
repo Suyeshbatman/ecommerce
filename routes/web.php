@@ -19,10 +19,11 @@ use App\Http\Controllers\SuperadminController;
 //Auth Routes
 
 Route::get('/', function () {
-    return view('landing.home');
+    return redirect()->route('login');
 })->name('home');
 
-Route::get('/login', 'LoginController@index')->name('login');
+Route::get('/checklogin', 'LoginController@index')->name('login');
+Route::get('/userlogin', 'LoginController@userlogin')->name('userlogin');
 Route::get('/redirect', [LoginController::class, 'redirect'])->name('redirect');
 Route::get('/register', 'LoginController@register')->name('register');
 
