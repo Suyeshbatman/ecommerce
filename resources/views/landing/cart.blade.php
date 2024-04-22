@@ -21,6 +21,9 @@
                 <th style="padding: 8px; border: 1px solid #ddd;">City</th>
                 <th style="padding: 8px; border: 1px solid #ddd;">Requested</th>
                 <th style="padding: 8px; border: 1px solid #ddd;">Accepted</th>
+                <th style="padding: 8px; border: 1px solid #ddd;">Start Time</th>
+                <th style="padding: 8px; border: 1px solid #ddd;">End Time</th>
+                <th style="padding: 8px; border: 1px solid #ddd;">Cost</th>
                 <th style="padding: 8px; border: 1px solid #ddd;">Actions</th>
             </tr>
         </thead>
@@ -37,6 +40,9 @@
                 <td style="padding: 8px; border: 1px solid #ddd;">{{ $value->city }}</td>
                 <td style="padding: 8px; border: 1px solid #ddd;">{{ $value->requested }}</td>
                 <td style="padding: 8px; border: 1px solid #ddd;">{{ $value->accepted }}</td>
+                <td style="padding: 8px; border: 1px solid #ddd;">{{ $value->jobstarttime ?: 'Not Started' }}</td>
+                <td style="padding: 8px; border: 1px solid #ddd;">{{ $value->jobstarttime ?: 'Not Started' }}</td>
+                <td style="padding: 8px; border: 1px solid #ddd;">{{ $value->jobstarttime ?: 'Not Started' }}</td>
                 <td>
                     <button type="button" onclick="location.href='{{ url('edit/' . $value->id) }}'" style="margin-right: 5px; padding: 5px 10px; background-color: #4CAF50; color: white; border: none; cursor: pointer;">Edit</button>
                     <button type="button" onclick="if(confirm('Are you sure?')) location.href='{{ url('delete/' . $value->id) }}'" style="padding: 5px 10px; background-color: #f44336; color: white; border: none; cursor: pointer;">Delete</button>

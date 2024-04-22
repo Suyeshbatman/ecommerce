@@ -48,6 +48,15 @@ Route::post('/getservices', 'ClientController@getservices')->name('client.getser
 Route::post('/createavailableservices', 'ClientController@createavailableservices')->name('client.createavailableservices');
 Route::post('/getdifficulty', 'ClientController@getdifficulty')->name('client.getdifficulty');
 Route::get('/fetchuserdata', 'ClientController@fetchuserdata')->name('client.fetchuserdata');
+Route::post('/getuserdata', 'ClientController@getuserdata')->name('client.getuserdata');
+Route::post('/edituserprofile', 'ClientController@edituserprofile')->name('client.edituserprofile');
+Route::post('/getservicedata', 'ClientController@getservicedata')->name('client.getservicedata');
+Route::post('/edituserservice', 'ClientController@edituserservice')->name('client.edituserservice');
+Route::post('/deleteuserservice', 'ClientController@deleteuserService')->name('client.deleteuserservice');
+Route::get('/fetchappointmentdata', 'ClientController@fetchappointmentdata')->name('client.fetchappointmentdata');
+
+Route::post('/appointmentactions', 'ClientController@appointmentactions')->name('client.appointmentactions');
+Route::get('/fetchrevenuedata', 'ClientController@fetchrevenuedata')->name('client.fetchrevenuedata');
 // Route::post('/usersdashboard', 'SuperadminController@superuser')->name('superadmin.users');
 // Route::post('/servicesdashboard', 'SuperadminController@superservices')->name('superadmin.services');
 // Route::post('/addservicesdashboard', 'SuperadminController@addservices')->name('superadmin.addservices');

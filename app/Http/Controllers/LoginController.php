@@ -46,9 +46,16 @@ class LoginController extends Controller
                     //return view('dashboard.admindashboard');
     
                 } elseif ($role->rolename === 'Admin') {
-                    $userdata = User::all();
-                    return view('dashboard.clientdashboard',['userdata'=>$userdata,'data'=>$data]);
-                    //return view('dashboard.clientdashboard');
+                    $userdata = User::where('id', $value)->first();
+
+                    $availableservices = DB::table('available__services')
+                            ->join('services', 'available__services.services_id', '=', 'services.id')
+                            ->join('categories', 'available__services.category_id', '=', 'categories.id')
+                            ->where('user_id', $value)
+                            ->select('available__services.id','available__services.category_id','categories.category_name', 'available__services.services_id','services.service_name', 'services.description', 'available__services.image', 'available__services.rate', 'available__services.zip','available__services.city')
+                            ->get();
+                    
+                    return view('dashboard.clientdashboard',['userdata'=>$userdata, 'availableservices'=>$availableservices]);  
     
                 } else {
                     return redirect(route('home'));
