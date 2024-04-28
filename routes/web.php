@@ -41,6 +41,8 @@ Route::get('/fetch-services', 'SuperadminController@fetchServices')->name('super
 Route::get('/fetch-categories', 'SuperadminController@fetchCategories')->name('fetch.categories');
 Route::post('/delete-service', 'SuperadminController@deleteService')->name('delete-service');
 Route::post('/update-paid-status', [SuperadminController::class, 'updatePaidStatus'])->name('update.paid.status');
+Route::post('/edit-service/{id}', 'SuperadminController@editService')->name('superadmin.editservice');
+
 
 //Client routes
 Route::post('/clientdashboard', 'ClientController@index')->name('client.index');

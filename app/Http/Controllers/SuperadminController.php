@@ -279,6 +279,30 @@ class SuperadminController extends Controller
             return response()->json(['success' => false, 'message' => 'Failed to update subscription.']);
         }
      }
+
+    public function editService(Request $request, $id)
+    {
+         // Validate the incoming request to ensure the presence of at least one updatable field
+         $validatedData = $request->validate([
+             'service_name'    => 'sometimes|required|string|max:255',
+             'description'     => 'sometimes|required|string',
+             'difficulty'      => 'sometimes|required|integer',
+         ]);
+     
+         // Fetch the service by ID
+         $service = Services::find($id);
+     
+         // Check if the service exists
+         if (!$service) {
+             return response()->json(['success' => false, 'message' => 'Service not found'], 404);
+         }
+     
+         // Update the service with the validated data
+         $service->update($validatedData);
+     
+         // Return a success response
+         return response()->json(['success' => true, 'message' => 'Service updated successfully', 'service' => $service]);
+    }
      
     
 }
