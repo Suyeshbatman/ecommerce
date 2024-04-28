@@ -33,57 +33,84 @@
 <div class="tab-content">
 <div class="tab-pane active" id="users" style="width: 100%; margin: 20px auto; padding: 15px; box-shadow: 0 0 10px rgba(0,0,0,0.1); background-color: white">
         <!-- Table for Paid Subscribers (no changes needed here) -->
-        <table class="table table-bordered" id="paidSubscribersTable">
-    <thead style="background-color: #343a40; color: #ffffff;">
-        <tr>
-            <th scope="col">#</th>
-            <th scope="col">Username</th>
-            <th scope="col">Email</th>
-            <th scope="col">Role</th>
-        </tr>
-    </thead>
-    <tbody style="background-color: #f8f9fa; color: #333333;">
-        @isset($paidsubscribers)
-        @foreach ($paidsubscribers as $value)
-        <tr>
-            <th scope="row">{{ $loop->iteration }}</th>
-            <td>{{$value->name}}</td>
-            <td>{{$value->email}}</td>
-            <td>Admin</td>
-        </tr>
-        @endforeach
-        @endisset
-    </tbody>
-</table>
+        <h1>Subscribed Users</h1>
+    <table class="table table-bordered" id="paidSubscribersTable">
+        <thead style="background-color: #343a40; color: #ffffff;">
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Username</th>
+                <th scope="col">Email</th>
+                <th scope="col">Role</th>
+            </tr>
+        </thead>
+        <tbody style="background-color: #f8f9fa; color: #333333;">
+            @isset($paidsubscribers)
+            @foreach ($paidsubscribers as $value)
+            <tr>
+                <th scope="row">{{ $loop->iteration }}</th>
+                <td>{{$value->name}}</td>
+                <td>{{$value->email}}</td>
+                <td>Admin</td>
+            </tr>
+            @endforeach
+            @endisset
+        </tbody>
+    </table>
 
 <!-- Table for Unpaid Subscribers -->
-<table class="table table-bordered" id="unpaidSubscribersTable">
-    <thead style="background-color: #343a40; color: #ffffff;">
-        <tr>
-            <th scope="col">#</th>
-            <th scope="col">Username</th>
-            <th scope="col">Email</th>
-            <th scope="col">Role</th>
-            <th scope="col">Action</th>
-        </tr>
-    </thead>
-    <tbody style="background-color: #f8f9fa; color: #333333;">
-        @isset($unpaidsubscribers)
-        @foreach ($unpaidsubscribers as $value)
-        <tr>
-            <th scope="row">{{$loop->iteration}}</th>
-            <td>{{$value->name}}</td>
-            <td>{{$value->email}}</td>
-            <td>Normal</td>
-            <td>
-                <button type="button" class="btn btn-primary btn-sm btn-add" data-user-id="{{$value->id}}">Add</button>
-            </td>
-        </tr>
-        @endforeach
-        @endisset
-    </tbody>
-</table>
-    </div>
+    <h1>Unsubscribed Users</h1>
+    <table class="table table-bordered" id="unpaidSubscribersTable">
+        <thead style="background-color: #343a40; color: #ffffff;">
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Username</th>
+                <th scope="col">Email</th>
+                <th scope="col">Role</th>
+                <th scope="col">Action</th>
+            </tr>
+        </thead>
+        <tbody style="background-color: #f8f9fa; color: #333333;">
+            @isset($unpaidsubscribers)
+            @foreach ($unpaidsubscribers as $value)
+            <tr>
+                <th scope="row">{{$loop->iteration}}</th>
+                <td>{{$value->name}}</td>
+                <td>{{$value->email}}</td>
+                <td>Subscribed</td>
+                <td>
+                    <button type="button" class="btn btn-primary btn-sm btn-add" data-user-id="{{$value->id}}">Add</button>
+                </td>
+            </tr>
+            @endforeach
+            @endisset
+        </tbody>
+    </table>
+
+    <!-- Table for Normal Users -->
+    <h1>Normal Users</h1>
+    <table class="table table-bordered" id="normalUsersTbale">
+        <thead style="background-color: #343a40; color: #ffffff;">
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Username</th>
+                <th scope="col">Email</th>
+                <th scope="col">Role</th>
+            </tr>
+        </thead>
+        <tbody style="background-color: #f8f9fa; color: #333333;">
+            @isset($normalusers)
+            @foreach ($normalusers as $value)
+            <tr>
+                <th scope="row">{{$loop->iteration}}</th>
+                <td>{{$value->name}}</td>
+                <td>{{$value->email}}</td>
+                <td>Normal</td>
+            </tr>
+            @endforeach
+            @endisset
+        </tbody>
+    </table>
+</div>
 
   <div class="tab-pane" id="services" style="width: 100%; margin: 20px auto; padding: 15px; box-shadow: 0 0 10px rgba(0,0,0,0.1); background-color: white">
     <table class="table table-bordered">
@@ -185,26 +212,26 @@
       <div class="modal-body">
         <!-- Form starts here -->
         <form class="editServiceForm" id="editServiceForm">
-        <input type="hidden" class="form-control" id="editServiceId" name="service_id" value="">
-          <div class="mb-3">
-            <label for="editcategoryid" class="form-label">Category</label>
-            <select class="form-select" id="editcategoryid" name="category_id" value="">
-              <!-- Categories options will be populated here dynamically -->
-            </select>
-          </div>
-          <div class="mb-3">
-            <label for="editServiceName" class="form-label">Service Name</label>
-            <input type="text" class="form-control" id="editServiceName" name="service_name" value="">
-          </div>
-          <div class="mb-3">
-            <label for="editServiceDescription" class="form-label">Description</label>
-            <textarea class="form-control" id="editServiceDescription" name="description" value=""></textarea>
-          </div>
-          <div class="mb-3">
-            <label for="editDifficulty" class="form-label">Difficulty</label>
-            <input type="number" class="form-control" id="editDifficulty" name="difficulty" value="">
-          </div>
-        </form>
+    <input type="hidden" class="form-control" id="editServiceId" name="service_id">
+    <div class="mb-3">
+        <label for="editcategoryid" class="form-label">Category</label>
+        <select class="form-select" id="editcategoryid" name="category_id">
+            <!-- Categories options will be populated here dynamically -->
+        </select>
+    </div>
+    <div class="mb-3">
+        <label for="editServiceName" class="form-label">Service Name</label>
+        <input type="text" class="form-control" id="editServiceName" name="service_name" placeholder="" value="">
+    </div>
+    <div class="mb-3">
+        <label for="editServiceDescription" class="form-label">Description</label>
+        <textarea class="form-control" id="editServiceDescription" name="description" placeholder="" value=""></textarea>
+    </div>
+    <div class="mb-3">
+        <label for="editDifficulty" class="form-label">Difficulty</label>
+        <input type="number" class="form-control" id="editDifficulty" name="difficulty" placeholder="" value="">
+    </div>
+</form>
         <!-- Form ends here -->
       </div>
       <div class="modal-footer">
@@ -231,7 +258,12 @@ $(document).ready(function() {
                 <td data-description="${service.description}" value="">${service.description}</td>
                 <td data-difficulty="${service.difficulty}" value="">${service.difficulty}</td>
                 <td>
-                    <button type="button" class="btn btn-primary btn-edit" data-service-id="${service.id}">Edit</button>
+                    <button type="button" class="btn btn-primary btn-edit" 
+                        data-service-id="${service.id}" 
+                        data-service-name="${service.service_name}"
+                        data-description="${service.description}"
+                        data-category="${service.category_id}"
+                        data-difficulty="${service.difficulty}">Edit</button>
                     <button type="button" class="btn btn-danger btn-delete" data-service-id="${service.id}">Delete</button>
                 </td>
             </tr>`;
@@ -426,39 +458,43 @@ $(document).ready(function() {
     // Delegated event handling for edit button clicks
     $(document).on('click', '.btn-edit', function() {
         var serviceId = $(this).data('service-id');
-        
-        var serviceName = $(this).data('service-name'); // Ensure data attribute is data-service-name
-        var serviceDescription = $(this).data('description'); // Ensure data attribute is data-description
-        var serviceDifficulty = $(this).data('difficulty'); // Ensure data attribute is data-difficulty
-        console.log(serviceDifficulty);
+        var serviceName = $(this).data('service-name');
+        var serviceDescription = $(this).data('description');
+        var serviceDifficulty = $(this).data('difficulty');
+        var categoryId = $(this).data('category');
+
 
         // Populate the modal inputs immediately
-        $('#editServiceId').val(serviceId);
-        $('#editServiceName').val(serviceName);
-        $('#editServiceDescription').val(serviceDescription);
-        $('#editDifficulty').val(serviceDifficulty);
+         $('#editServiceId').val(serviceId);
+        $('#editServiceName').attr('placeholder', serviceName).val('');
+        $('#editServiceDescription').attr('placeholder', serviceDescription).val('');
+        $('#editDifficulty').attr('placeholder', serviceDifficulty).val('');
 
         $.ajax({
-            type: "GET",
-            url: "/fetch-categories",
-            success: function(response) {
-                var dropdown = $('#editcategoryid');
-                dropdown.empty();
-                dropdown.append('<option selected disabled value="">Choose a category</option>');
-                $.each(response.categories, function(index, category) {
-                    dropdown.append($('<option>', {
-                        value: category.id,
-                        text: category.category_name
-                    }));
-                });
-            },
-            error: function(xhr) {
-                console.error("Error fetching categories: ", xhr.responseText);
-            }
-        }); 
-       // console.log("Edit service with ID:", serviceId);
-        $('#editServiceModal').modal('show');
+        type: "GET",
+        url: "/fetch-categories",
+        success: function(response) {
+            var dropdown = $('#editcategoryid');
+            dropdown.empty();
+            dropdown.append('<option selected disabled value="">Choose a category</option>');
+            $.each(response.categories, function(index, category) {
+                dropdown.append($('<option>', {
+                    value: category.id,
+                    text: category.category_name
+                }));
+            });
+
+            // Set the placeholder to the category corresponding to the service's category ID
+            dropdown.val(categoryId);
+        },
+        error: function(xhr) {
+            console.error("Error fetching categories: ", xhr.responseText);
+        }
     });
+
+    // Show the edit modal
+    $('#editServiceModal').modal('show');
+});
 
     $(document).on('click', '.btn-add', function() {
     var addButton = $(this);

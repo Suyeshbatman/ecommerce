@@ -75,9 +75,13 @@ class SuperadminController extends Controller
                                 ->select('users.*')
                                 ->get();
 
-        //$userdata = User::all();
+        $normalusers = DB::table('users')
+                        ->leftJoin('subscriptions', 'users.id', '=', 'subscriptions.user_id')
+                        ->whereNull('subscriptions.user_id')
+                        ->select('users.*')
+                        ->get(); 
         
-        return response()->json(['unpaidsubscribers' => $unpaidsubscribers, 'paidsubscribers' => $paidsubscribers,'tabid' => $tabid]);
+        return response()->json(['unpaidsubscribers' => $unpaidsubscribers, 'paidsubscribers' => $paidsubscribers,'normalusers' => $normalusers,'tabid' => $tabid]);
 
         // return view('dashboard.admindashboard')->with(['userdata' => $userdata, 'tabid' => $tabid])
         //                                         ->with(['jsonData' => json_encode(['udata' => $udata, 'tabid' => $tabid])]);
@@ -114,57 +118,57 @@ class SuperadminController extends Controller
     }
 
     public function addservices(Request $request)
-{
-    $tabid = $request->tabid; 
-    $value = Session::get('user_id');
-    $user = User::where('id', $value)->first();
+    {
+        $tabid = $request->tabid; 
+        $value = Session::get('user_id');
+        $user = User::where('id', $value)->first();
 
-    // Preserving session setup
-    $request->session()->put('user_name', $user->name);
-    $request->session()->put('user_id', $user->id);
-    $userrole = UserRoles::where('userid', $user->id)->first();
-    $role = Roles::where('id', $userrole->roleid)->first();
-    $request->session()->put('user_role', $role->rolename);
+        // Preserving session setup
+        $request->session()->put('user_name', $user->name);
+        $request->session()->put('user_id', $user->id);
+        $userrole = UserRoles::where('userid', $user->id)->first();
+        $role = Roles::where('id', $userrole->roleid)->first();
+        $request->session()->put('user_role', $role->rolename);
 
-    // Fetch categories and return them to the frontend
-    $categories = Categories::all();
-    
-    // Return categories data along with the tab ID
-    return response()->json(['categories' => $categories, 'tabid' => $tabid]);
-}
+        // Fetch categories and return them to the frontend
+        $categories = Categories::all();
+        
+        // Return categories data along with the tab ID
+        return response()->json(['categories' => $categories, 'tabid' => $tabid]);
+    }
     
 
     public function revenue(Request $request)
     {
         $request = request();
-    $tabid = $request->tabid;
-    $user = User::where('id', Session::get('user_id'))->first();
-    
-    $request->session()->put('user_name', $user->name);
-    $request->session()->put('user_id', $user->id);
+        $tabid = $request->tabid;
+        $user = User::where('id', Session::get('user_id'))->first();
+        
+        $request->session()->put('user_name', $user->name);
+        $request->session()->put('user_id', $user->id);
 
-    $userrole = UserRoles::where('userid', $user->id)->first();
-    $role = Roles::where('id', $userrole->roleid)->first();
-    $request->session()->put('user_role', $role->rolename);
+        $userrole = UserRoles::where('userid', $user->id)->first();
+        $role = Roles::where('id', $userrole->roleid)->first();
+        $request->session()->put('user_role', $role->rolename);
 
-    // Fetch all records where 'paid' is 'Y'
-    $subscriptions = DB::table('subscriptions')
-                       ->join('users', 'subscriptions.user_id', '=', 'users.id')
-                       ->where('subscriptions.paid', '=', 'Y')
-                       ->select('users.name', 'users.email', 'subscriptions.request_interval', 'subscriptions.start_date', 'subscriptions.end_date')
-                       ->get();
+        // Fetch all records where 'paid' is 'Y'
+        $subscriptions = DB::table('subscriptions')
+                        ->join('users', 'subscriptions.user_id', '=', 'users.id')
+                        ->where('subscriptions.paid', '=', 'Y')
+                        ->select('users.name', 'users.email', 'subscriptions.request_interval', 'subscriptions.start_date', 'subscriptions.end_date')
+                        ->get();
 
-    $totalSubscribedUsers = $subscriptions->count();
-    $totalMonthsSubscribed = $subscriptions->sum('request_interval');
+        $totalSubscribedUsers = $subscriptions->count();
+        $totalMonthsSubscribed = $subscriptions->sum('request_interval');
 
-    // Returning data as JSON
-    return response()->json([
-        'success' => true,
-        'tabid' => $tabid,
-        'totalSubscribedUsers' => $totalSubscribedUsers,
-        'totalMonthsSubscribed' => $totalMonthsSubscribed,
-        'subscribedUsers' => $subscriptions
-    ]);              
+        // Returning data as JSON
+        return response()->json([
+            'success' => true,
+            'tabid' => $tabid,
+            'totalSubscribedUsers' => $totalSubscribedUsers,
+            'totalMonthsSubscribed' => $totalMonthsSubscribed,
+            'subscribedUsers' => $subscriptions
+        ]);              
         
     }
 
@@ -238,14 +242,14 @@ class SuperadminController extends Controller
 
     public function fetchServices()
     {
-    $services = Services::all(); // Fetch all services
-    return response()->json(['services' => $services]);
+        $services = Services::all(); // Fetch all services
+        return response()->json(['services' => $services]);
     }
 
     public function fetchCategories()
     {
-    $categories = Categories::all();
-    return response()->json(['categories' => $categories]);
+        $categories = Categories::all();
+        return response()->json(['categories' => $categories]);
     }
 
     public function deleteService(Request $request)

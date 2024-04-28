@@ -68,8 +68,8 @@ Route::get('/fetchrevenuedata', 'ClientController@fetchrevenuedata')->name('clie
 Route::post('/subscribe', 'LoginController@subscribeuser')->name('subscribe.post');
 Route::post('/getavailableservice', 'HomeController@fetchavailableservice')->name('fetch.availableservice');
 Route::post('/requestavailableservice', 'HomeController@requestavailableservice')->name('request.reqavailableservice');
-
-
-
+Route::get('/cartdata', 'HomeController@getcartdata')->name('cartdata');
+Route::post('/filter-by-category', 'HomeController@filterbycategory')->name('filter.category');
+Route::post('/filter-by-service', 'HomeController@filterbyservice')->name('filter.service');
 
 

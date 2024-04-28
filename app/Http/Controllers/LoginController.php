@@ -10,6 +10,8 @@ use App\Models\User;
 use App\Models\UserRoles;
 use App\Models\Roles;
 use App\Models\Subscriptions;
+use App\Models\Categories;
+use App\Models\Services;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Hash;
@@ -67,22 +69,36 @@ class LoginController extends Controller
     
                 } else if ($role->rolename === 'Normal'){
                     $availableservices = DB::table('available__services')
-                            ->join('services', 'available__services.services_id', '=', 'services.id')
-                            ->join('categories', 'available__services.category_id', '=', 'categories.id')
-                            ->select('available__services.id','available__services.category_id','categories.category_name', 'available__services.services_id','services.service_name', 'services.description', 'available__services.image', 'available__services.rate', 'available__services.zip','available__services.city')
-                            ->get();
+                        ->join('services', 'available__services.services_id', '=', 'services.id')
+                        ->join('users', 'available__services.user_id', '=', 'users.id')
+                        ->join('categories', 'available__services.category_id', '=', 'categories.id')
+                        ->select('users.name', 'users.email','available__services.id','available__services.category_id','categories.category_name', 'available__services.services_id','services.service_name', 'services.description', 'available__services.image', 'available__services.rate', 'available__services.zip','available__services.city')
+                        ->orderBy('users.name', 'asc')
+                        ->get();
+    
+                        $groupedServices = $availableservices->groupBy('email');
             
-                    return view('landing.home',['availableservices'=>$availableservices]);
+                        $categories = Categories::all();
+                        $services = Services::all();          
+            
+                    return view('landing.home',['availableservices'=>$groupedServices, 'categories'=>$categories, 'services'=> $services]); 
                 }      
 		}
         else {      
             $availableservices = DB::table('available__services')
                     ->join('services', 'available__services.services_id', '=', 'services.id')
+                    ->join('users', 'available__services.user_id', '=', 'users.id')
                     ->join('categories', 'available__services.category_id', '=', 'categories.id')
-                    ->select('available__services.id','available__services.category_id','categories.category_name', 'available__services.services_id','services.service_name', 'services.description', 'available__services.image', 'available__services.rate', 'available__services.zip','available__services.city')
+                    ->select('users.name', 'users.email','available__services.id','available__services.category_id','categories.category_name', 'available__services.services_id','services.service_name', 'services.description', 'available__services.image', 'available__services.rate', 'available__services.zip','available__services.city')
+                    ->orderBy('users.name', 'asc')
                     ->get();
-    
-            return view('landing.home',['availableservices'=>$availableservices]);     
+
+            $groupedServices = $availableservices->groupBy('email');
+
+            $categories = Categories::all();
+            $services = Services::all();          
+
+            return view('landing.home',['availableservices'=>$groupedServices, 'categories'=>$categories, 'services'=> $services]);     
         }   
         
     }
@@ -142,7 +158,13 @@ class LoginController extends Controller
                                 ->select('users.*')
                                 ->get();
 
-                        return view('dashboard.admindashboard',['unpaidsubscribers' => $unpaidsubscribers, 'paidsubscribers' => $paidsubscribers]);
+                        $normalusers = DB::table('users')
+                                ->leftJoin('subscriptions', 'users.id', '=', 'subscriptions.user_id')
+                                ->whereNull('subscriptions.user_id')
+                                ->select('users.*')
+                                ->get();      
+                        
+                        return view('dashboard.admindashboard',['unpaidsubscribers' => $unpaidsubscribers, 'paidsubscribers' => $paidsubscribers, 'normalusers' => $normalusers]);
                         //return view('dashboard.admindashboard');
         
                     } elseif ($role->rolename === 'Admin') {
@@ -160,20 +182,34 @@ class LoginController extends Controller
 
 		            } elseif ($role->rolename === 'Normal') {
                         $availableservices = DB::table('available__services')
-                                ->join('services', 'available__services.services_id', '=', 'services.id')
-                                ->join('categories', 'available__services.category_id', '=', 'categories.id')
-                                ->select('available__services.id','available__services.category_id','categories.category_name', 'available__services.services_id','services.service_name', 'services.description', 'available__services.image', 'available__services.rate', 'available__services.zip','available__services.city')
-                                ->get();
-                
-                        return view('landing.home',['availableservices'=>$availableservices]);                                 
+                                    ->join('services', 'available__services.services_id', '=', 'services.id')
+                                    ->join('users', 'available__services.user_id', '=', 'users.id')
+                                    ->join('categories', 'available__services.category_id', '=', 'categories.id')
+                                    ->select('users.name', 'users.email','available__services.id','available__services.category_id','categories.category_name', 'available__services.services_id','services.service_name', 'services.description', 'available__services.image', 'available__services.rate', 'available__services.zip','available__services.city')
+                                    ->orderBy('users.name', 'asc')
+                                    ->get();
+    
+                        $groupedServices = $availableservices->groupBy('email');
+            
+                        $categories = Categories::all();
+                        $services = Services::all();           
+            
+                        return view('landing.home',['availableservices'=>$groupedServices, 'categories'=>$categories, 'services'=> $services]);                                  
                     } else{
                         $availableservices = DB::table('available__services')
-                                ->join('services', 'available__services.services_id', '=', 'services.id')
-                                ->join('categories', 'available__services.category_id', '=', 'categories.id')
-                                ->select('available__services.id','available__services.category_id','categories.category_name', 'available__services.services_id','services.service_name', 'services.description', 'available__services.image', 'available__services.rate', 'available__services.zip','available__services.city')
-                                ->get();
-                
-                        return view('landing.home',['availableservices'=>$availableservices]);
+                        ->join('services', 'available__services.services_id', '=', 'services.id')
+                        ->join('users', 'available__services.user_id', '=', 'users.id')
+                        ->join('categories', 'available__services.category_id', '=', 'categories.id')
+                        ->select('users.name', 'users.email','available__services.id','available__services.category_id','categories.category_name', 'available__services.services_id','services.service_name', 'services.description', 'available__services.image', 'available__services.rate', 'available__services.zip','available__services.city')
+                        ->orderBy('users.name', 'asc')
+                        ->get();
+    
+                        $groupedServices = $availableservices->groupBy('email');
+            
+                        $categories = Categories::all();
+                        $services = Services::all();          
+            
+                        return view('landing.home',['availableservices'=>$groupedServices, 'categories'=>$categories, 'services'=> $services]); 
                     }
                 } 
 		    }
@@ -283,14 +319,36 @@ class LoginController extends Controller
     
                 if ($role->rolename === 'Superadmin') {
     
-                    $userdata = User::all();
-                    $data = Roles::all();
-                    return view('dashboard.admindashboard',['userdata'=>$userdata,'data'=>$data]);
-                    //return view('dashboard.admindashboard');
+                    $unpaidsubscribers = DB::table('users')
+                            ->join('subscriptions', 'users.id', '=', 'subscriptions.user_id')
+                            ->where('paid', '=', 'N')
+                            ->select('users.*')
+                            ->get();
+                    $paidsubscribers = DB::table('users')
+                            ->join('subscriptions', 'users.id', '=', 'subscriptions.user_id')
+                            ->where('paid', '=', 'Y')
+                            ->select('users.*')
+                            ->get();
+
+                    $normalusers = DB::table('users')
+                            ->leftJoin('subscriptions', 'users.id', '=', 'subscriptions.user_id')
+                            ->whereNull('subscriptions.user_id')
+                            ->select('users.*')
+                            ->get();      
+                    
+                    return view('dashboard.admindashboard',['unpaidsubscribers' => $unpaidsubscribers, 'paidsubscribers' => $paidsubscribers, 'normalusers' => $normalusers]);
     
                 } elseif ($role->rolename === 'Admin') {
-                    return view('dashboard.clientdashboard',['userdata'=>$userdata,'data'=>$data]);
-                    //return view('dashboard.clientdashboard');
+                    $userdata = User::where('id', $value)->first();
+
+                    $availableservices = DB::table('available__services')
+                            ->join('services', 'available__services.services_id', '=', 'services.id')
+                            ->join('categories', 'available__services.category_id', '=', 'categories.id')
+                            ->where('user_id', $value)
+                            ->select('available__services.id','available__services.category_id','categories.category_name', 'available__services.services_id','services.service_name', 'services.description', 'available__services.image', 'available__services.rate', 'available__services.zip','available__services.city')
+                            ->get();
+                    
+                    return view('dashboard.clientdashboard',['userdata'=>$userdata, 'availableservices'=>$availableservices]); 
     
                 } elseif ($role->rolename === 'Normal') {
                     // print($value);
@@ -316,11 +374,18 @@ class LoginController extends Controller
                 $userdata = User::where('id', $value)->first();
                 $availableservices = DB::table('available__services')
                         ->join('services', 'available__services.services_id', '=', 'services.id')
+                        ->join('users', 'available__services.user_id', '=', 'users.id')
                         ->join('categories', 'available__services.category_id', '=', 'categories.id')
-                        ->select('available__services.id','available__services.category_id','categories.category_name', 'available__services.services_id','services.service_name', 'services.description', 'available__services.image', 'available__services.rate', 'available__services.zip','available__services.city')
+                        ->select('users.name', 'users.email','available__services.id','available__services.category_id','categories.category_name', 'available__services.services_id','services.service_name', 'services.description', 'available__services.image', 'available__services.rate', 'available__services.zip','available__services.city')
+                        ->orderBy('users.name', 'asc')
                         ->get();
-        
-                return view('landing.home',['userdata'=>$userdata, 'availableservices'=>$availableservices]);  
+
+                $groupedServices = $availableservices->groupBy('email');
+
+                $categories = Categories::all();
+                $services = Services::all();         
+
+                return view('landing.home',['availableservices'=>$groupedServices, 'categories'=>$categories, 'services'=> $services]);   
                 //return redirect(route('home'))->with("success", "Requested for Subscription!!!  We will contact you soon.");
                 }      
                 

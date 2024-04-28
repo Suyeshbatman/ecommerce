@@ -10,13 +10,13 @@
                 <!-- Intentionally left blank for Super Admins, or you can add admin specific links here -->
             </ul>
             @if(in_array(Session::get('user_role'), ['Admin', 'Normal'])) <!-- Hide cart for Superadmins -->
-            <form class="d-flex">
+                <a href="{{url('/cartdata')}}">
                 <button class="btn btn-outline-dark" type="submit" style="font-weight: bold; font-size: 1.35rem; color: #3b3938;">
                     <i class="bi-cart-fill me-1"></i>
                     Cart
                     <span class="badge bg-dark text-white ms-1 rounded-pill">0</span>
                 </button>
-            </form>
+                </a>
             @endif
             @if(Session::has('user_role'))
             <div class="user-info ms-3 pe-3" style="border-right: 2px solid #ddd;">

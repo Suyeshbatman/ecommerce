@@ -41,8 +41,8 @@
                 <td style="padding: 8px; border: 1px solid #ddd;">{{ $value->requested }}</td>
                 <td style="padding: 8px; border: 1px solid #ddd;">{{ $value->accepted }}</td>
                 <td style="padding: 8px; border: 1px solid #ddd;">{{ $value->jobstarttime ?: 'Not Started' }}</td>
-                <td style="padding: 8px; border: 1px solid #ddd;">{{ $value->jobstarttime ?: 'Not Started' }}</td>
-                <td style="padding: 8px; border: 1px solid #ddd;">{{ $value->jobstarttime ?: 'Not Started' }}</td>
+                <td style="padding: 8px; border: 1px solid #ddd;">{{ $value->jobendtime ?: 'Not Started' }}</td>
+                <td style="padding: 8px; border: 1px solid #ddd;">{{ $value->cost ?: 'Not Started' }}</td>
                 <td>
                     <button type="button" onclick="location.href='{{ url('edit/' . $value->id) }}'" style="margin-right: 5px; padding: 5px 10px; background-color: #4CAF50; color: white; border: none; cursor: pointer;">Edit</button>
                     <button type="button" onclick="if(confirm('Are you sure?')) location.href='{{ url('delete/' . $value->id) }}'" style="padding: 5px 10px; background-color: #f44336; color: white; border: none; cursor: pointer;">Delete</button>
