@@ -150,7 +150,7 @@ class HomeController extends Controller
                     ->join('services', 'available__services.services_id', '=', 'services.id')
                     ->join('users', 'available__services.user_id', '=', 'users.id')
                     ->join('categories', 'available__services.category_id', '=', 'categories.id')
-                    ->select('users.name', 'users.email','available__services.id','available__services.category_id','categories.category_name', 'available__services.services_id','services.service_name', 'services.description', 'available__services.image', 'available__services.rate', 'available__services.zip','available__services.city')
+                    ->select('users.name', 'users.email', 'users.phonenumber', 'users.zip as uzip', 'users.city as ucity','available__services.id','available__services.category_id','categories.category_name', 'available__services.services_id','services.service_name', 'services.description', 'available__services.image', 'available__services.rate', 'available__services.zip','available__services.city')
                     ->where('categories.id', $catid)
                     ->orderBy('users.name', 'asc')
                     ->get();
@@ -170,7 +170,7 @@ class HomeController extends Controller
                     ->join('services', 'available__services.services_id', '=', 'services.id')
                     ->join('users', 'available__services.user_id', '=', 'users.id')
                     ->join('categories', 'available__services.category_id', '=', 'categories.id')
-                    ->select('users.name', 'users.email','available__services.id','available__services.category_id','categories.category_name', 'available__services.services_id','services.service_name', 'services.description', 'available__services.image', 'available__services.rate', 'available__services.zip','available__services.city')
+                    ->select('users.name', 'users.email', 'users.phonenumber', 'users.zip as uzip', 'users.city as ucity','available__services.id','available__services.category_id','categories.category_name', 'available__services.services_id','services.service_name', 'services.description', 'available__services.image', 'available__services.rate', 'available__services.zip','available__services.city')
                     ->where('services.id', $servid)
                     ->orderBy('users.name', 'asc')
                     ->get();
@@ -181,32 +181,6 @@ class HomeController extends Controller
             $services = Services::all();  
 
             return response()->json(['success' => true, 'availableservices' => $groupedServices, 'categories'=>$categories, 'services'=>$services]);  
-
-    }
-
-    public function filterbyprovider(Request $request){
-        $providerid = $request->filterValue;
-        $availableservices = DB::table('available__services')
-                    ->join('services', 'available__services.services_id', '=', 'services.id')
-                    ->join('users', 'available__services.user_id', '=', 'users.id')
-                    ->join('categories', 'available__services.category_id', '=', 'categories.id')
-                    ->select('users.name', 'users.email','available__services.id','available__services.category_id','categories.category_name', 'available__services.services_id','services.service_name', 'services.description', 'available__services.image', 'available__services.rate', 'available__services.zip','available__services.city')
-                    ->where('available__services.user_id', $providerid)
-                    ->orderBy('users.name', 'asc')
-                    ->get();
-
-            $groupedServices = $availableservices->groupBy('email');
-
-            $categories = Categories::all();
-            $services = Services::where('category_id', $catid)->get();
-            $providers = DB::table('available__services')
-                        ->join('users', 'available__services.user_id', '=', 'users.id')
-                        ->select('users.name', 'users.id')
-                        ->orderBy('users.name', 'asc')
-                        ->get();
-            $groupedproviders = $providers->groupBy('email');  
-
-            return response()->json(['success' => true, 'availableservices' => $groupedServices, 'categories'=>$categories, 'services'=>$services, 'providers'=>$groupedproviders]);  
 
     }
 }

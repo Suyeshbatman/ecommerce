@@ -239,7 +239,11 @@ $(document).ready(function() {
           var providerContent = `
             <div style="background-color: #f8f9fa; padding: 20px; margin: 0 -15px 20px -15px; border-radius: 0; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
                 <h3 style="color: #333; font-size: 1.5rem;">Service Provider Information</h3>
-                <p style="color: #666;">${services[0].name}</p>
+                <p style="color: #666; display: inline-block;">${services[0].name}</p>
+                <p style="color: #666; display: inline-block;">${services[0].email}</p>
+                <p style="color: #666; display: inline-block;">${services[0].phonenumber}</p>
+                <p style="color: #666; display: inline-block;">${services[0].uzip}</p>
+                <p style="color: #666; display: inline-block;">${services[0].ucity}</p>
             </div>
             <div class="container px-4 px-lg-5 mt-5" style="max-width: 2000px;">
                 <div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center">

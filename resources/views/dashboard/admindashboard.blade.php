@@ -215,7 +215,7 @@
     <input type="hidden" class="form-control" id="editServiceId" name="service_id">
     <div class="mb-3">
         <label for="editcategoryid" class="form-label">Category</label>
-        <select class="form-select" id="editcategoryid" name="category_id">
+        <input type="text" class="form-control" id="editcategoryid" disabled>
             <!-- Categories options will be populated here dynamically -->
         </select>
     </div>
@@ -439,21 +439,29 @@ $(document).ready(function() {
     // Delegated event handling for delete button clicks
     $(document).on('click', '.btn-delete', function() {
         var serviceId = $(this).data('service-id');
-        if (confirm('Are you sure you want to delete this service?')) {
-            $.ajax({
-                type: "POST",
-                url: '/delete-service',
-                data: { id: serviceId, _token: "{{ csrf_token() }}" },
-                success: function(response) {
-                    alert('Service deleted successfully!');
-                    fetchAndUpdateServices();
-                },
-                error: function(xhr) {
-                    alert('Error deleting service: ' + xhr.responseText);
-                }
-            });
-        }
+        $.ajax({
+            type: "POST",
+            url: '/delete-service',
+            data: { id: serviceId, _token: "{{ csrf_token() }}" },
+            success: function(response) {
+                fetchAndUpdateServices();
+                Toastify({
+                    text: "Sevice has been deleted,",
+                    duration: 3000,
+                    close: true,
+                    gravity: "top", // `top` or `bottom`
+                    position: 'right', // `left`, `center` or `right`
+                    backgroundColor: "#4CAF50",
+                    className: "info",
+                }).showToast();
+            },
+            error: function(xhr) {
+                alert('Error deleting service: ' + xhr.responseText);
+            }
+        });
+        
     });
+
 
     // Delegated event handling for edit button clicks
     $(document).on('click', '.btn-edit', function() {
@@ -463,38 +471,73 @@ $(document).ready(function() {
         var serviceDifficulty = $(this).data('difficulty');
         var categoryId = $(this).data('category');
 
-
         // Populate the modal inputs immediately
-         $('#editServiceId').val(serviceId);
-        $('#editServiceName').attr('placeholder', serviceName).val('');
-        $('#editServiceDescription').attr('placeholder', serviceDescription).val('');
-        $('#editDifficulty').attr('placeholder', serviceDifficulty).val('');
+        $('#editServiceId').val(serviceId);
+        $('#editServiceName').attr('placeholder', serviceName).val(serviceName);
+        $('#editServiceDescription').attr('placeholder', serviceDescription).val(serviceDescription);
+        $('#editDifficulty').attr('placeholder', serviceDifficulty).val(serviceDifficulty);
 
+        // Fetch all categories and find the one matching the categoryId to display in a disabled input
         $.ajax({
-        type: "GET",
-        url: "/fetch-categories",
-        success: function(response) {
-            var dropdown = $('#editcategoryid');
-            dropdown.empty();
-            dropdown.append('<option selected disabled value="">Choose a category</option>');
-            $.each(response.categories, function(index, category) {
-                dropdown.append($('<option>', {
-                    value: category.id,
-                    text: category.category_name
-                }));
-            });
+            type: "GET",
+            url: "/fetch-categories",
+            success: function(response) {
+                var category = response.categories.find(c => c.id == categoryId); // Find the category
+                if (category) {
+                    $('#editcategoryid').val(category.category_name); // Set the category name in the disabled input
+                } else {
+                    $('#editcategoryid').val("Category not found"); // Fallback if category ID doesn't match
+                }
+            },
+            error: function(xhr) {
+                console.error("Error fetching categories: ", xhr.responseText);
+                $('#editcategoryid').val("Error loading category");
+            }
+        });
 
-            // Set the placeholder to the category corresponding to the service's category ID
-            dropdown.val(categoryId);
+        // Show the edit modal
+        $('#editServiceModal').modal('show');
+});
+
+// Handle the form submission to update service
+$('#editServiceForm').on('submit', function(e) {
+    e.preventDefault(); // Prevent default form submission behavior
+
+    var serviceId = $('#editServiceId').val();
+    var data = {
+        service_name: $('#editServiceName').val(),
+        description: $('#editServiceDescription').val(),
+        difficulty: $('#editDifficulty').val()
+    };
+
+    // Send the updated data to the server
+    $.ajax({
+        type: "POST",
+        url: "/edit-service/" + serviceId,
+        data: data,
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') // CSRF token for Laravel
+        },
+        success: function(response) {
+            $('#editServiceModal').modal('hide'); // Close the modal on success
+            fetchAndUpdateServices();
+            Toastify({
+                    text: "Sevice has been updated successfully! ",
+                    duration: 3000,
+                    close: true,
+                    gravity: "top", // `top` or `bottom`
+                    position: 'right', // `left`, `center` or `right`
+                    backgroundColor: "#4CAF50",
+                    className: "info",
+                }).showToast();
         },
         error: function(xhr) {
-            console.error("Error fetching categories: ", xhr.responseText);
+            console.error("Error updating service: ", xhr.responseText);
+            // Optionally display an error message
         }
     });
-
-    // Show the edit modal
-    $('#editServiceModal').modal('show');
 });
+
 
     $(document).on('click', '.btn-add', function() {
     var addButton = $(this);

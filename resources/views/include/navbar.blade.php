@@ -20,7 +20,6 @@
             @endif
             @if(Session::has('user_role'))
             <div class="user-info ms-3 pe-3" style="border-right: 2px solid #ddd;">
-                <span class="user-role" style="font-weight: bold; margin-right: 10px; font-size: 1.35rem; color: #3b3938;">Role: {{ Session::get('user_role')}}</span>
                 @if(Session::has('user_name'))
                 <span class="user-name" style="font-weight: bold; font-size: 1.35rem; color: #3b3938;">{{ Session::get('user_name')}}</span>        
                 @endif
