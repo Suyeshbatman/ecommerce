@@ -251,6 +251,10 @@ class ClientController extends Controller
                     'id' => $userdata->id,
                     'name' => $userdata->name,
                     'email' => $userdata->email,
+                    'phonenumber' => $userdata->phonenumber,
+                    'address' => $userdata->address,
+                    'zip' => $userdata->zip,
+                    'city' => $userdata->city,
                 ]
             ]);
         } else {
@@ -270,12 +274,20 @@ class ClientController extends Controller
         $request->validate([
             'first_name' => 'required',
             'email'    => 'required',
+            'phonenumber' => 'required',
+            'address'    => 'required',
+            'zip1' => 'required',
+            'city1'    => 'required',
         ]);
 
         
         $user = User::find($value);
         $user->name = $request->first_name;
-        $user->email = $request->email;   
+        $user->email = $request->email; 
+        $user->phonenumber = $request->phonenumber;
+        $user->address = $request->address;
+        $user->zip = $request->zip1;
+        $user->city = $request->city1;  
         $data = $request->all();
         $user->update($data);
 
@@ -494,10 +506,13 @@ class ClientController extends Controller
                 $endTime = Carbon::createFromFormat('H:i:s', $cart->jobendtime);
             
                 $durationInMinutes = $endTime->diffInMinutes($startTime);
+                if ($durationInMinutes == 0) {
+                    $durationInMinutes = 1;
+                }
                 $durationInHours = $durationInMinutes / 60.0;  // Convert minutes to hours correctly
             
                 $costcalculation = $durationInHours * $rate;
-                $costcalculation = round($costcalculation, 2);
+                $costcalculation = ceil($costcalculation * 100) / 100;
             
                 // Update the cost
                 $cart->cost = $costcalculation;

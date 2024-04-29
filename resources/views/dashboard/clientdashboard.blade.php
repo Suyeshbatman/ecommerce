@@ -236,30 +236,26 @@
             <label for="first_name" class="form-label">First Name</label>
             <input type="text" class="form-control" id="first_name" name="first_name" value="">
           </div>
-          <!-- <div class="mb-3">
-            <label for="last_name" class="form-label">Last Name</label>
-            <input type="text" class="form-control" id="last_name" name="last_name" value="" readOnly={true}>
-          </div> -->
           <div class="mb-3">
             <label for="email" class="form-label">Email</label>
             <textarea class="form-control" id="email" name="email" value=""></textarea>
           </div>
-          <!-- <div class="mb-3">
-            <label for="phone_number" class="form-label">Phone Number</label>
-            <input type="number" class="form-control" id="phone_number" name="phone_number" value="" readOnly={true}>
+          <div class="mb-3">
+            <label for="phonenumber" class="form-label">Phone Number</label>
+            <input type="number" class="form-control" id="phonenumber" name="phonenumber" value="">
           </div>
           <div class="mb-3">
             <label for="address" class="form-label">Address</label>
-            <input type="text" class="form-control" id="address" name="address" value="" readOnly={true}>
+            <input type="text" class="form-control" id="address" name="address" value="">
           </div>
           <div class="mb-3">
-            <label for="zip" class="form-label">Zip</label>
-            <input type="number" class="form-control" id="zip" name="zip" value="" readOnly={true}>
+            <label for="zip1" class="form-label">Zip</label>
+            <input type="number" class="form-control" id="zip1" name="zip1" value="">
           </div>
           <div class="mb-3">
-            <label for="city" class="form-label">City</label>
-            <input type="text" class="form-control" id="city" name="city" value="" readOnly={true}>
-          </div> -->
+            <label for="city1" class="form-label">City</label>
+            <input type="text" class="form-control" id="city1" name="city1" value="">
+          </div>
           <button type="submit" class="btn btn-primary">Edit Profile</button>
           {!!Form::close() !!}
         <!-- Form ends here -->
@@ -393,7 +389,7 @@ $(document).ready(function() {
     var url = '/getservices';
     var infoData = { catid: catid, _token: "{{csrf_token()}}" };
     $.post(url, infoData, function(response) {
-      console.log(response.services);
+      //console.log(response.services);
         var dropdown = $('#services_id');
         dropdown.empty();
         dropdown.append('<option selected disabled value="">Choose a service</option>');
@@ -593,6 +589,7 @@ $(document).ready(function() {
               }).showToast();
                   fetchAndPopulateData(); // Fetch and populate users
                   activateTab('users');
+                  window.location.reload();
                   
             }else if(response.error){
               Toastify({
@@ -627,11 +624,16 @@ $(document).ready(function() {
       success: function(response) {
         if (response.status === 'success') {
 
-          console.log(response.userdata.id);
+          console.log(response.userdata.zip);
 
           $('#user_id').val(response.userdata.id);
           $('#first_name').val(response.userdata.name);
           $('#email').val(response.userdata.email);
+          $('#phonenumber').val(response.userdata.phonenumber);
+          $('#address').val(response.userdata.address);
+          $('#zip1').val(response.userdata.zip);
+          $('#city1').val(response.userdata.city);
+
 
         } else {
             console.error('Error: ', response.message);
@@ -682,6 +684,7 @@ $(document).ready(function() {
     });
 
     $('#viewUserserviceModal').modal('show');
+    
   });
 
   $(document).on('click', '.btn-deleteuserservice', function() {

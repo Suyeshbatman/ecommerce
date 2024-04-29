@@ -41,7 +41,12 @@
         @foreach($availableservices as $userEmail => $services)
             <div style="background-color: #f8f9fa; padding: 20px; margin: 0 -15px 20px -15px; border-radius: 0; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
                 <h3 style="color: #333; font-size: 1.5rem;">Service Provider Information</h3>
-                <p style="color: #666;">{{ $services[0]->name }}</p>
+                <p style="color: #666; display: inline-block; margin-right: 10px;">{{ $services[0]->name }}</p>
+                <p style="color: #666; display: inline-block;">{{ $services[0]->email }}</p>
+                <p style="color: #666; display: inline-block;">{{ $services[0]->phonenumber }}</p>
+                <p style="color: #666; display: inline-block;">{{ $services[0]->zip }}</p>
+                <p style="color: #666; display: inline-block;">{{ $services[0]->city }}</p>
+
             </div>
             <div class="container px-4 px-lg-5 mt-5" style="max-width: 2000px;">
                 <div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center">
@@ -144,8 +149,9 @@
     {!! Form::open(['method'=>'POST', 'url'=>'/subscribe', 'class'=>'form-inline']) !!}
     @csrf
     <div style="text-align: center;">
-        <select name="months" id="months" class="form-select form-select-lg mb-3" aria-label=".form-select-lg example" style="margin-right: 10px; width: auto; display: inline-block;">
-            <option selected>Select Subscription Period</option>
+      <input type="hidden" class="form-control" id="subscribe" name="subscribe" value="{{ Session::get('user_id')}}">
+        <select name="months" id="months" class="form-select form-select-lg mb-3" aria-label=".form-select-lg example" style="margin-right: 10px; width: auto; display: inline-block;" >
+            <option value="" disabled selected>Select Subscription Period</option>
             <option value="1">1 Month</option>
             <option value="2">2 Months</option>
             <option value="3">3 Months</option>
@@ -156,7 +162,7 @@
         </select>
         <button type="submit" id="subscribe-button" style="background-color: #007bff; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer;">Subscribe</button>
     </div>
-    {!! Form::close() !!}`
+    {!! Form::close() !!}
 </div>
 @endif
 
@@ -211,6 +217,18 @@ $(document).ready(function() {
             updateFilters(filterType, response);
         });
     });
+  // document.addEventListener('DOMContentLoaded', function () {
+  //   var select = document.getElementById('months');
+  //   var button = document.getElementById('subscribe-button');
+
+  //   select.addEventListener('change', function() {
+  //     if (this.value) {  // If some value is selected
+  //       button.style.display = 'inline-block';  // Show the button
+  //     } else {
+  //       button.style.display = 'none';  // Hide the button if no value is selected
+  //     }
+  //   });
+  // });
 
     function updateServices(data) {
       var section = $('#serviceSection');

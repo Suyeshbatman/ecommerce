@@ -72,7 +72,7 @@ class LoginController extends Controller
                         ->join('services', 'available__services.services_id', '=', 'services.id')
                         ->join('users', 'available__services.user_id', '=', 'users.id')
                         ->join('categories', 'available__services.category_id', '=', 'categories.id')
-                        ->select('users.name', 'users.email','available__services.id','available__services.category_id','categories.category_name', 'available__services.services_id','services.service_name', 'services.description', 'available__services.image', 'available__services.rate', 'available__services.zip','available__services.city')
+                        ->select('users.name', 'users.email', 'users.address', 'users.zip', 'users.city', 'users.phonenumber', 'available__services.id','available__services.category_id','categories.category_name', 'available__services.services_id','services.service_name', 'services.description', 'available__services.image', 'available__services.rate', 'available__services.zip','available__services.city')
                         ->orderBy('users.name', 'asc')
                         ->get();
     
@@ -89,7 +89,7 @@ class LoginController extends Controller
                     ->join('services', 'available__services.services_id', '=', 'services.id')
                     ->join('users', 'available__services.user_id', '=', 'users.id')
                     ->join('categories', 'available__services.category_id', '=', 'categories.id')
-                    ->select('users.name', 'users.email','available__services.id','available__services.category_id','categories.category_name', 'available__services.services_id','services.service_name', 'services.description', 'available__services.image', 'available__services.rate', 'available__services.zip','available__services.city')
+                    ->select('users.name', 'users.email', 'users.address', 'users.zip', 'users.city', 'users.phonenumber', 'available__services.id','available__services.category_id','categories.category_name', 'available__services.services_id','services.service_name', 'services.description', 'available__services.image', 'available__services.rate', 'available__services.zip','available__services.city')
                     ->orderBy('users.name', 'asc')
                     ->get();
 
@@ -185,7 +185,7 @@ class LoginController extends Controller
                                     ->join('services', 'available__services.services_id', '=', 'services.id')
                                     ->join('users', 'available__services.user_id', '=', 'users.id')
                                     ->join('categories', 'available__services.category_id', '=', 'categories.id')
-                                    ->select('users.name', 'users.email','available__services.id','available__services.category_id','categories.category_name', 'available__services.services_id','services.service_name', 'services.description', 'available__services.image', 'available__services.rate', 'available__services.zip','available__services.city')
+                                    ->select('users.name', 'users.email', 'users.address', 'users.zip', 'users.city', 'users.phonenumber', 'available__services.id','available__services.category_id','categories.category_name', 'available__services.services_id','services.service_name', 'services.description', 'available__services.image', 'available__services.rate', 'available__services.zip','available__services.city')
                                     ->orderBy('users.name', 'asc')
                                     ->get();
     
@@ -200,7 +200,7 @@ class LoginController extends Controller
                         ->join('services', 'available__services.services_id', '=', 'services.id')
                         ->join('users', 'available__services.user_id', '=', 'users.id')
                         ->join('categories', 'available__services.category_id', '=', 'categories.id')
-                        ->select('users.name', 'users.email','available__services.id','available__services.category_id','categories.category_name', 'available__services.services_id','services.service_name', 'services.description', 'available__services.image', 'available__services.rate', 'available__services.zip','available__services.city')
+                        ->select('users.name', 'users.email', 'users.address', 'users.zip', 'users.city', 'users.phonenumber', 'available__services.id','available__services.category_id','categories.category_name', 'available__services.services_id','services.service_name', 'services.description', 'available__services.image', 'available__services.rate', 'available__services.zip','available__services.city')
                         ->orderBy('users.name', 'asc')
                         ->get();
     
@@ -260,10 +260,16 @@ class LoginController extends Controller
 
     public function registeruser(Request $request)
     {
+        // print($request);
+        // exit;
         $request->validate([
             'name' => 'required',
             'email'    => 'required|max:255|email|unique:users',
             'password' => 'required|min:5|max:10', 
+            'phonenumber' => 'required', 
+            'address' => 'required', 
+            'zip' => 'required', 
+            'city' => 'required',
         ]);
 
         $data = $request->all();
@@ -271,6 +277,10 @@ class LoginController extends Controller
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => bcrypt($data['password']),
+            'phonenumber' => $data['phonenumber'],
+            'address' => $data['address'],
+            'zip' => $data['zip'],
+            'city' => $data['city'],
         ]);    
 
         $newuser = User::where('email', $data['email'])->first();
@@ -299,11 +309,9 @@ class LoginController extends Controller
         if (!empty($request)){
         $value = $request->subscribe;
         $interval = $request->months;
-        }else{
-            return view('auth.register');
         }
         
-        if (!empty($value)){
+        if (!empty($value) && !empty($interval)){
             
             $user = User::where('id', $value)->first();
 
@@ -350,9 +358,8 @@ class LoginController extends Controller
                     
                     return view('dashboard.clientdashboard',['userdata'=>$userdata, 'availableservices'=>$availableservices]); 
     
-                } elseif ($role->rolename === 'Normal') {
-                    // print($value);
-                    // exit;
+                } else if ($role->rolename === 'Normal') {
+
                     $currentDateTime = Carbon::now();
                     //$newDateTime = Carbon::now()->addMonth();
                     $newDateTime = Carbon::now()->addMonth($interval);
@@ -370,23 +377,24 @@ class LoginController extends Controller
                     'start_date' => $currentDateTime,
                     'end_date' => $newDateTime,
                 ]);   
-                $value = Session::get('user_id');
-                $userdata = User::where('id', $value)->first();
-                $availableservices = DB::table('available__services')
-                        ->join('services', 'available__services.services_id', '=', 'services.id')
-                        ->join('users', 'available__services.user_id', '=', 'users.id')
-                        ->join('categories', 'available__services.category_id', '=', 'categories.id')
-                        ->select('users.name', 'users.email','available__services.id','available__services.category_id','categories.category_name', 'available__services.services_id','services.service_name', 'services.description', 'available__services.image', 'available__services.rate', 'available__services.zip','available__services.city')
-                        ->orderBy('users.name', 'asc')
-                        ->get();
 
-                $groupedServices = $availableservices->groupBy('email');
+                    $value = Session::get('user_id');
+                    $userdata = User::where('id', $value)->first();
+                    $availableservices = DB::table('available__services')
+                            ->join('services', 'available__services.services_id', '=', 'services.id')
+                            ->join('users', 'available__services.user_id', '=', 'users.id')
+                            ->join('categories', 'available__services.category_id', '=', 'categories.id')
+                            ->select('users.name', 'users.email', 'users.address', 'users.zip', 'users.city', 'users.phonenumber', 'available__services.id','available__services.category_id','categories.category_name', 'available__services.services_id','services.service_name', 'services.description', 'available__services.image', 'available__services.rate', 'available__services.zip','available__services.city')
+                            ->orderBy('users.name', 'asc')
+                            ->get();
 
-                $categories = Categories::all();
-                $services = Services::all();         
+                    $groupedServices = $availableservices->groupBy('email');
 
-                return view('landing.home',['availableservices'=>$groupedServices, 'categories'=>$categories, 'services'=> $services]);   
-                //return redirect(route('home'))->with("success", "Requested for Subscription!!!  We will contact you soon.");
+                    $categories = Categories::all();
+                    $services = Services::all();         
+
+                    return view('landing.home',['availableservices'=>$groupedServices, 'categories'=>$categories, 'services'=> $services]);   
+
                 }      
                 
             }else{
@@ -394,7 +402,7 @@ class LoginController extends Controller
             }     
 		}
         else {           
-            return view('auth.login'); 
+            return redirect(route('home'));
         }                  
         
     }
