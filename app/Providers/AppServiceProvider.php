@@ -17,8 +17,11 @@ class AppServiceProvider extends ServiceProvider
     /**
      * Bootstrap any application services.
      */
-    public function boot(): void
+    public function boot()
     {
-        //
+        Request::setTrustedProxies(
+            [Request::HEADER_X_FORWARDED_ALL],
+            Request::HEADER_X_FORWARDED_ALL
+        );
     }
 }
