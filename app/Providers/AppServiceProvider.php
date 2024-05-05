@@ -3,7 +3,6 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Request;
 
 
@@ -20,12 +19,8 @@ class AppServiceProvider extends ServiceProvider
     /**
      * Bootstrap any application services.
      */
-    public function boot()
+    public function boot(): void
     {
-         // Trust all headers set by the proxy (useful for Heroku deployments)
-        Request::setTrustedProxies(
-            [Request::HEADER_X_FORWARDED_FOR, Request::HEADER_X_FORWARDED_HOST, Request::HEADER_X_FORWARDED_PROTO, Request::HEADER_X_FORWARDED_PORT],
-            Request::HEADER_X_FORWARDED_ALL
-        );
+        
     }
 }
