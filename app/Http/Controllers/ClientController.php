@@ -343,8 +343,6 @@ class ClientController extends Controller
     public function edituserservice(Request $request)
     {
         $value = Session::get('user_id');
-        print($request->availability_id);
-        exit;
 
         $request->validate([
             'rate2' => 'required',
