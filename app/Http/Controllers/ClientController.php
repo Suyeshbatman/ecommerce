@@ -189,9 +189,7 @@ class ClientController extends Controller
                 $imagefile = $request->file('image');
                 $filename = time() . '.' . $imagefile->getClientOriginalExtension();
                 $imagefile->storeAs('public/images', $filename);
-                //$imagefile->move('images', $filename);
-                // $person->image = $filename;
-                // $person->save();
+
             };
     
             $data = $request->all();
